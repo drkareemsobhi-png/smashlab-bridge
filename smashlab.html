@@ -42,7 +42,7 @@
   var wa = 'https://wa.me/' + phone + '?text=' + text;
   document.getElementById('manual').href = wa;
   try { ttq.track('Contact', { content_id: src, content_name: 'whatsapp_order' }); } catch(e){}
-  setTimeout(function(){ location.href = wa; }, 900);
+  if (!q.get('noredirect')) { setTimeout(function(){ location.href = wa; }, 900); }
 </script>
 </body>
 </html>
