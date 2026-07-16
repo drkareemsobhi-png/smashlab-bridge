@@ -6,13 +6,16 @@
 <meta name="robots" content="noindex">
 <title>SmashLab — اطلب دلوقتي</title>
 <style>
-  html,body{height:100%;margin:0;font-family:'Segoe UI',Tahoma,sans-serif;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}
-  .box{padding:24px}
-  .t{font-size:20px;font-weight:700;margin-top:14px}
-  .s{font-size:14px;opacity:.7;margin-top:6px}
-  .spin{width:46px;height:46px;border:4px solid #333;border-top-color:#e2231a;border-radius:50%;margin:0 auto;animation:r 1s linear infinite}
-  @keyframes r{to{transform:rotate(360deg)}}
-  a{color:#e2231a}
+  html,body{height:100%;margin:0;font-family:'Segoe UI',Tahoma,sans-serif;background:#141414;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}
+  .box{padding:24px;max-width:420px}
+  .logo{font-size:30px;font-weight:900;letter-spacing:-.5px;color:#E2231A}
+  .t{font-size:23px;font-weight:800;margin-top:18px;line-height:1.45}
+  .s{font-size:15px;opacity:.72;margin-top:10px;line-height:1.6}
+  .btn{display:block;margin:26px auto 0;background:#E2231A;color:#fff;text-decoration:none;
+       font-size:20px;font-weight:800;padding:18px 26px;border-radius:14px;
+       box-shadow:0 6px 22px rgba(226,35,26,.42);transition:transform .12s}
+  .btn:active{transform:scale(.97)}
+  .note{font-size:13px;opacity:.5;margin-top:16px}
 </style>
 <!-- TikTok Pixel -->
 <script>
@@ -30,9 +33,11 @@
 </head>
 <body>
 <div class="box">
-  <div class="spin"></div>
-  <div class="t">جارٍ تحويلك إلى واتساب…</div>
-  <div class="s">لو مفتحش تلقائي، <a id="manual" href="#">دوس هنا</a></div>
+  <div class="logo">SMASHLAB</div>
+  <div class="t">أي سندوتش بـ 90 جنيه 🍔</div>
+  <div class="s">دوس الزرار وابعتلنا طلبك على واتساب — هنرد عليك فورًا.</div>
+  <a class="btn" id="order" href="#">اطلب دلوقتي على واتساب</a>
+  <div class="note">التوصيل داخل القاهرة</div>
 </div>
 <script>
   var q = new URLSearchParams(location.search);
@@ -40,9 +45,18 @@
   var phone = '201030080097';
   var text = encodeURIComponent('عايز أطلب من سماش لاب 🍔 (' + src + ')');
   var wa = 'https://wa.me/' + phone + '?text=' + text;
-  document.getElementById('manual').href = wa;
-  try { ttq.track('Contact', { content_id: src, content_name: 'whatsapp_order' }); } catch(e){}
-  if (!q.get('noredirect')) { setTimeout(function(){ location.href = wa; }, 900); }
+
+  var btn = document.getElementById('order');
+  btn.href = wa;
+
+  // Contact fires ONLY on a real tap — it must stay a measure of intent, not of page loads.
+  var fired = false;
+  btn.addEventListener('click', function () {
+    if (!fired) {
+      fired = true;
+      try { ttq.track('Contact', { content_id: src, content_name: 'whatsapp_order' }); } catch (e) {}
+    }
+  });
 </script>
 </body>
 </html>
