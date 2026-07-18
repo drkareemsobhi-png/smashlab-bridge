@@ -138,15 +138,13 @@
   <div class="sheet-in">
     <h3>أوردرك 🍔 <button class="x" id="closeCart">✕</button></h3>
     <div id="cartLines"></div>
-    <div class="totline"><span>الإجمالي</span><span class="v" id="sheetTotal">0 ج</span></div>
-    <div class="dnote">الأسعار غير شاملة التوصيل — بيتأكد معاك على واتساب حسب المنطقة.</div>
-    <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(التوصيل داخل المناطق دي بس)</span></div>
+    <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
+    <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
+    <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
+    <div class="dnote">الدفع كاش عند الاستلام.</div>
+    <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
     <select class="fld" id="area">
       <option value="">اختار منطقتك…</option>
-      <option>مدينة نصر</option>
-      <option>مصر الجديدة</option>
-      <option>شيراتون</option>
-      <option>التجمع الخامس</option>
     </select>
     <div class="flbl">العنوان بالتفصيل <span class="req">*</span></div>
     <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"></textarea>
@@ -296,32 +294,53 @@ function renderSheet(){
     });
     box.innerHTML=html;
   }
-  document.getElementById('sheetTotal').textContent=fmt(totals().t);
+  var t=totals().t, fee=deliveryFee();
+  document.getElementById('sheetTotal').textContent=fmt(t);
+  document.getElementById('sheetDelivery').textContent = fee===null ? 'اختار منطقتك' : fmt(fee);
+  document.getElementById('sheetGrand').textContent = fee===null ? fmt(t)+' + توصيل' : fmt(t+fee);
 }
 
-/* ---- delivery area + GPS ---- */
-var AREAS={
-  'شيراتون':      [30.085,30.135,31.355,31.420],
-  'مدينة نصر':    [30.020,30.090,31.295,31.390],
-  'مصر الجديدة':  [30.070,30.145,31.270,31.365],
-  'التجمع الخامس':[29.960,30.070,31.395,31.560]
-};
-var gps=null; // {lat,lng,area} داخل النطاق — أو {outside:true}
+/* ---- delivery zones (اسم المنطقة => سعر التوصيل) ---- */
+var ZONES=[
+  ['عباس العقاد',40], ['أحمد فخري',40], ['مكرم عبيد',40],
+  ['الطيران',50], ['حسن المأمون',50], ['مساكن الشروق',50], ['حسن الشريف',50],
+  ['مصطفى النحاس',50], ['سمير عبدالرؤوف',50], ['الحديقة الدولية',50], ['حي السفارات',50],
+  ['الحي السادس',50], ['الحي السابع',50], ['الحي الثامن',50], ['التبة',50], ['أحمد الزمر',50],
+  ['عبد الحميد بدوي',60], ['شيراتون',60], ['النزهة الجديدة',60],
+  ['الحي العاشر',60], ['حي الواحة',60], ['زهراء مدينة نصر',60],
+  ['جسر السويس',70], ['حدائق القبة',70],
+  ['جاردينيا',75], ['العباسية',75],
+  ['حلمية الزيتون',80], ['المطرية',90],
+  ['التجمع الخامس',100], ['شبرا مصر',120]
+];
+var FEES={};
+(function(){
+  var sel=document.getElementById('area');
+  ZONES.forEach(function(z){
+    FEES[z[0]]=z[1];
+    var o=document.createElement('option');
+    o.value=z[0]; o.textContent=z[0]+' — توصيل '+z[1]+'ج';
+    sel.appendChild(o);
+  });
+})();
+function deliveryFee(){ var a=document.getElementById('area').value; return a?FEES[a]:null; }
+
+/* ---- GPS (نطاق شرق القاهرة الكبير) ---- */
+var BOUNDS=[29.95,30.17,31.23,31.58]; // lat1,lat2,lng1,lng2
+var gps=null; // {lat,lng} داخل النطاق — أو {outside:true}
 var gpsStat=document.getElementById('gpsStat');
 document.getElementById('gpsBtn').addEventListener('click', function(){
   if(!navigator.geolocation){ gpsStat.className='gpsstat bad'; gpsStat.textContent='المتصفح مش بيدعم تحديد الموقع — اكتب عنوانك بالتفصيل.'; return; }
   gpsStat.className='gpsstat'; gpsStat.textContent='جاري تحديد موقعك…';
   navigator.geolocation.getCurrentPosition(function(p){
-    var lat=p.coords.latitude, lng=p.coords.longitude, found=null;
-    for(var a in AREAS){ var b=AREAS[a]; if(lat>=b[0]&&lat<=b[1]&&lng>=b[2]&&lng<=b[3]){ found=a; break; } }
-    if(found){
-      gps={lat:lat,lng:lng,area:found};
-      document.getElementById('area').value=found;
-      gpsStat.className='gpsstat ok'; gpsStat.textContent='✅ تم تحديد موقعك — '+found+' (جوه نطاق التوصيل)';
+    var lat=p.coords.latitude, lng=p.coords.longitude;
+    if(lat>=BOUNDS[0]&&lat<=BOUNDS[1]&&lng>=BOUNDS[2]&&lng<=BOUNDS[3]){
+      gps={lat:lat,lng:lng};
+      gpsStat.className='gpsstat ok'; gpsStat.textContent='✅ تم تحديد موقعك — هيتبعت للدليفري مع الأوردر';
       hideErr();
     }else{
       gps={outside:true};
-      gpsStat.className='gpsstat bad'; gpsStat.textContent='❌ موقعك الحالي خارج نطاق التوصيل (مدينة نصر - مصر الجديدة - شيراتون - التجمع الخامس).';
+      gpsStat.className='gpsstat bad'; gpsStat.textContent='❌ موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة.';
     }
   }, function(){
     gps=null;
@@ -331,7 +350,7 @@ document.getElementById('gpsBtn').addEventListener('click', function(){
 var errBox=document.getElementById('formErr');
 function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); }
 function hideErr(){ errBox.classList.remove('show'); }
-document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); if(gps&&gps.area&&this.value!==gps.area){gps=null;gpsStat.textContent='';} });
+document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); renderSheet(); });
 document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 
 /* ---- whatsapp ---- */
@@ -349,13 +368,16 @@ document.getElementById('sendWa').addEventListener('click', function(e){
   }
   if(!area){ e.preventDefault(); areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(addr.length<8){ e.preventDefault(); addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  var fee=FEES[area];
   var lines=['أوردر SmashLab 🍔','','الطلب:'];
   Object.keys(cart).forEach(function(k){
     var l=cart[k];
     lines.push('• '+l.qty+'× '+l.name+(l.opt?' ('+l.opt+')':'')+' — '+(l.qty*l.price)+'ج');
   });
   lines.push('');
-  lines.push('الإجمالي: '+x.t+' جنيه (غير شامل التوصيل)');
+  lines.push('الأوردر: '+x.t+'ج');
+  lines.push('التوصيل: '+fee+'ج');
+  lines.push('الإجمالي النهائي: '+(x.t+fee)+' جنيه');
   lines.push('المنطقة: '+area);
   lines.push('العنوان: '+addr);
   if(gps&&gps.lat) lines.push('اللوكيشن: https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6));
@@ -365,8 +387,8 @@ document.getElementById('sendWa').addEventListener('click', function(e){
   this.href='https://wa.me/'+PHONE+'?text='+encodeURIComponent(lines.join('\n'));
   if(!waFired){
     waFired=true;
-    try{ ttq.track('Contact',{content_id:src, content_name:'whatsapp_order', value:x.t, currency:'EGP'}); }catch(err){}
-    try{ ttq.track('PlaceAnOrder',{value:x.t, currency:'EGP', quantity:x.n}); }catch(err){}
+    try{ ttq.track('Contact',{content_id:src, content_name:'whatsapp_order', value:x.t+fee, currency:'EGP'}); }catch(err){}
+    try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
     setTimeout(function(){ waFired=false; }, 3000);
   }
 });
