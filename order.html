@@ -80,6 +80,19 @@
   .fld{width:100%;background:#141414;border:1px solid var(--line);border-radius:12px;color:#fff;
        font-family:'Cairo',sans-serif;font-size:14.5px;padding:12px 14px;margin-bottom:10px;resize:none}
   .fld::placeholder{color:rgba(255,255,255,.35)}
+  .fld.err{border-color:var(--red);box-shadow:0 0 0 2px rgba(226,35,26,.25)}
+  select.fld{appearance:none;-webkit-appearance:none;cursor:pointer}
+  .req{color:var(--red);font-weight:900}
+  .flbl{font-size:13px;font-weight:800;margin-bottom:6px;opacity:.85}
+  .gpsbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:transparent;
+          border:1.5px dashed var(--cheddar);color:var(--cheddar);font-family:'Cairo',sans-serif;font-weight:800;
+          font-size:14px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:6px}
+  .gpsstat{font-size:12.5px;font-weight:700;margin-bottom:10px;min-height:16px}
+  .gpsstat.ok{color:#3ddc74}
+  .gpsstat.bad{color:var(--red)}
+  .formerr{display:none;background:rgba(226,35,26,.12);border:1px solid var(--red);color:#ffb4b0;
+           font-size:13px;font-weight:700;border-radius:12px;padding:10px 14px;margin-bottom:10px}
+  .formerr.show{display:block}
   .wabtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--wa);color:#fff;
          border:none;font-family:'Cairo',sans-serif;font-weight:900;font-size:17.5px;padding:16px;border-radius:14px;
          cursor:pointer;box-shadow:0 6px 22px rgba(37,211,102,.35);text-decoration:none}
@@ -127,8 +140,20 @@
     <div id="cartLines"></div>
     <div class="totline"><span>الإجمالي</span><span class="v" id="sheetTotal">0 ج</span></div>
     <div class="dnote">الأسعار غير شاملة التوصيل — بيتأكد معاك على واتساب حسب المنطقة.</div>
-    <textarea class="fld" id="addr" rows="2" placeholder="العنوان (اختياري — ممكن تبعته على واتساب)"></textarea>
+    <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(التوصيل داخل المناطق دي بس)</span></div>
+    <select class="fld" id="area">
+      <option value="">اختار منطقتك…</option>
+      <option>مدينة نصر</option>
+      <option>مصر الجديدة</option>
+      <option>شيراتون</option>
+      <option>التجمع الخامس</option>
+    </select>
+    <div class="flbl">العنوان بالتفصيل <span class="req">*</span></div>
+    <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"></textarea>
+    <button class="gpsbtn" id="gpsBtn" type="button">📍 حدد لوكيشني الحالي (بيساعد الدليفري يوصلك أسرع)</button>
+    <div class="gpsstat" id="gpsStat"></div>
     <textarea class="fld" id="notes" rows="2" placeholder="ملاحظات على الأوردر (اختياري)"></textarea>
+    <div class="formerr" id="formErr"></div>
     <a class="wabtn" id="sendWa" href="#">ابعت الأوردر على واتساب ✅</a>
   </div>
 </div>
@@ -274,11 +299,56 @@ function renderSheet(){
   document.getElementById('sheetTotal').textContent=fmt(totals().t);
 }
 
+/* ---- delivery area + GPS ---- */
+var AREAS={
+  'شيراتون':      [30.085,30.135,31.355,31.420],
+  'مدينة نصر':    [30.020,30.090,31.295,31.390],
+  'مصر الجديدة':  [30.070,30.145,31.270,31.365],
+  'التجمع الخامس':[29.960,30.070,31.395,31.560]
+};
+var gps=null; // {lat,lng,area} داخل النطاق — أو {outside:true}
+var gpsStat=document.getElementById('gpsStat');
+document.getElementById('gpsBtn').addEventListener('click', function(){
+  if(!navigator.geolocation){ gpsStat.className='gpsstat bad'; gpsStat.textContent='المتصفح مش بيدعم تحديد الموقع — اكتب عنوانك بالتفصيل.'; return; }
+  gpsStat.className='gpsstat'; gpsStat.textContent='جاري تحديد موقعك…';
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude, lng=p.coords.longitude, found=null;
+    for(var a in AREAS){ var b=AREAS[a]; if(lat>=b[0]&&lat<=b[1]&&lng>=b[2]&&lng<=b[3]){ found=a; break; } }
+    if(found){
+      gps={lat:lat,lng:lng,area:found};
+      document.getElementById('area').value=found;
+      gpsStat.className='gpsstat ok'; gpsStat.textContent='✅ تم تحديد موقعك — '+found+' (جوه نطاق التوصيل)';
+      hideErr();
+    }else{
+      gps={outside:true};
+      gpsStat.className='gpsstat bad'; gpsStat.textContent='❌ موقعك الحالي خارج نطاق التوصيل (مدينة نصر - مصر الجديدة - شيراتون - التجمع الخامس).';
+    }
+  }, function(){
+    gps=null;
+    gpsStat.className='gpsstat bad'; gpsStat.textContent='مقدرناش نوصل لموقعك — تأكد إنك سامح بالإذن، أو اكتب عنوانك بالتفصيل.';
+  }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+});
+var errBox=document.getElementById('formErr');
+function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); }
+function hideErr(){ errBox.classList.remove('show'); }
+document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); if(gps&&gps.area&&this.value!==gps.area){gps=null;gpsStat.textContent='';} });
+document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
+
 /* ---- whatsapp ---- */
 var waFired=false;
 document.getElementById('sendWa').addEventListener('click', function(e){
   var x=totals();
   if(!x.n){ e.preventDefault(); return; }
+  var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr');
+  var area=areaEl.value, addr=addrEl.value.trim();
+  areaEl.classList.remove('err'); addrEl.classList.remove('err'); hideErr();
+  if(gps&&gps.outside){
+    e.preventDefault();
+    showErr('للأسف التوصيل متاح بس داخل: مدينة نصر - مصر الجديدة - شيراتون - التجمع الخامس. موقعك الحالي خارج النطاق فمنقدرش نستقبل الأوردر 🙏');
+    return;
+  }
+  if(!area){ e.preventDefault(); areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(addr.length<8){ e.preventDefault(); addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   var lines=['أوردر SmashLab 🍔','','الطلب:'];
   Object.keys(cart).forEach(function(k){
     var l=cart[k];
@@ -286,9 +356,10 @@ document.getElementById('sendWa').addEventListener('click', function(e){
   });
   lines.push('');
   lines.push('الإجمالي: '+x.t+' جنيه (غير شامل التوصيل)');
-  var addr=document.getElementById('addr').value.trim();
+  lines.push('المنطقة: '+area);
+  lines.push('العنوان: '+addr);
+  if(gps&&gps.lat) lines.push('اللوكيشن: https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6));
   var notes=document.getElementById('notes').value.trim();
-  if(addr) lines.push('العنوان: '+addr);
   if(notes) lines.push('ملاحظات: '+notes);
   lines.push('('+src+')');
   this.href='https://wa.me/'+PHONE+'?text='+encodeURIComponent(lines.join('\n'));
