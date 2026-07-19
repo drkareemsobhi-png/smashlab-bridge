@@ -188,6 +188,7 @@ var MENU = [
 ];
 
 var PHONE = '201030080097';
+var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
 var src = new URLSearchParams(location.search).get('src') || 'menu';
 var cart = {};            // key = id|opt  ->  {name, opt, price, qty}
 var sel  = {};            // selected option per item id
@@ -363,7 +364,7 @@ document.getElementById('sendWa').addEventListener('click', function(e){
   areaEl.classList.remove('err'); addrEl.classList.remove('err'); hideErr();
   if(gps&&gps.outside){
     e.preventDefault();
-    showErr('للأسف التوصيل متاح بس داخل: مدينة نصر - مصر الجديدة - شيراتون - التجمع الخامس. موقعك الحالي خارج النطاق فمنقدرش نستقبل الأوردر 🙏');
+    showErr('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏');
     return;
   }
   if(!area){ e.preventDefault(); areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
@@ -389,6 +390,16 @@ document.getElementById('sendWa').addEventListener('click', function(e){
     waFired=true;
     try{ ttq.track('Contact',{content_id:src, content_name:'whatsapp_order', value:x.t+fee, currency:'EGP'}); }catch(err){}
     try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
+    // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك)
+    try{
+      var payload={
+        items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
+        subtotal:x.t, delivery:fee, total:x.t+fee, area:area, address:addr,
+        gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
+        notes:notes, src:src
+      };
+      navigator.sendBeacon(WEBHOOK, new Blob([JSON.stringify(payload)],{type:'text/plain;charset=UTF-8'}));
+    }catch(err){}
     setTimeout(function(){ waFired=false; }, 3000);
   }
 });
