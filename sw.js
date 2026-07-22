@@ -1,5 +1,5 @@
 /* SmashLab app service worker — يخدم ملفات التطبيق بس، باقي صفحات الموقع (لاندينج الإعلانات) مش بيلمسها */
-var CACHE = 'smashlab-app-v1';
+var CACHE = 'smashlab-app-v2';
 var ASSETS = [
   'app.html',
   'manifest.webmanifest',
@@ -7,9 +7,15 @@ var ASSETS = [
   'app-icon-512.png',
   'img/hero_mushroom.jpg',
   'img/burger.jpg',
+  'img/bbq.jpg',
   'img/bacon.jpg',
   'img/mushroom.jpg',
+  'img/sweetchili.jpg',
   'img/chicken.jpg',
+  'img/chicken_bbq.jpg',
+  'img/chicken_ranch.jpg',
+  'img/chicken_sweetchili.jpg',
+  'img/chicken_turkey.jpg',
   'img/strips.jpg'
 ];
 

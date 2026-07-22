@@ -32,7 +32,9 @@
   .cat-head h2{font-size:24px;color:#fff}
   .cat-head .sub{font-size:13px;font-weight:700;color:var(--cheddar);margin-right:auto}
 
-  .item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px}
+  .item-body{flex:1;min-width:0}
+  .thumb{width:76px;height:76px;object-fit:cover;border-radius:12px;flex-shrink:0}
   .item-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
   .item-name{font-weight:900;font-size:17px}
   .item-price{font-family:'Anton',sans-serif;font-size:20px;color:var(--red);white-space:nowrap}
@@ -159,23 +161,23 @@
 <script>
 var MENU = [
   {cat:'سماش برجر ساندويتش', icon:'🍔', items:[
-    {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90},
-    {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90},
-    {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90},
-    {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90},
-    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90}
+    {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/burger.jpg'},
+    {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, img:'img/bbq.jpg'},
+    {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/mushroom.jpg'},
+    {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/bacon.jpg'},
+    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, img:'img/sweetchili.jpg'}
   ]},
   {cat:'فرايد تشيكن', icon:'🍗', sub:'حار أو أوريجنال', items:[
-    {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار']},
-    {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار']},
-    {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار']},
-    {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار']},
-    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار']}
+    {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], img:'img/chicken.jpg'},
+    {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_bbq.jpg'},
+    {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_ranch.jpg'},
+    {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_sweetchili.jpg'},
+    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], img:'img/chicken_turkey.jpg'}
   ]},
   {cat:'الأصناف الجانبية', icon:'🍟', items:[
     {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40},
     {id:'cheesefries',name:'بطاطس بالجبنة',    desc:'', price:55},
-    {id:'strips',     name:'استريبس الدجاج',   desc:'تقدم مع صوص من اختيارك', price:70, opts:['أوريجنال','حار']}
+    {id:'strips',     name:'استريبس الدجاج',   desc:'تقدم مع صوص من اختيارك', price:70, opts:['أوريجنال','حار'], img:'img/strips.jpg'}
   ]},
   {cat:'الإضافات', icon:'➕', items:[
     {id:'xpatty', name:'إضافة قطعة',  desc:'قطعة برجر أو دجاج زيادة جوه الساندوتش', price:50, opts:['برجر','دجاج']},
@@ -243,7 +245,9 @@ function buildMenu(){
   MENU.forEach(function(c){
     html+='<section class="cat"><div class="cat-head"><span class="ico">'+c.icon+'</span><h2 class="anton">'+c.cat+'</h2>'+(c.sub?'<span class="sub">'+c.sub+'</span>':'')+'</div>';
     c.items.forEach(function(it){
-      html+='<div class="item"><div class="item-top"><div class="item-name">'+it.name+'</div>'+
+      html+='<div class="item">';
+      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="lazy">';
+      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+'</div>'+
             '<div class="item-price">'+it.price+' <small>جنيه</small></div></div>';
       if(it.desc) html+='<div class="item-desc">'+it.desc+'</div>';
       if(it.opts){
@@ -254,7 +258,7 @@ function buildMenu(){
       html+='<div class="row2"><div class="incart" id="in_'+it.id+'"></div>'+
             '<div class="stepper"><button onclick="change(\''+it.id+'\',-1)">−</button>'+
             '<span class="q" id="q_'+it.id+'">0</span>'+
-            '<button class="plus" onclick="change(\''+it.id+'\',1)">+</button></div></div></div>';
+            '<button class="plus" onclick="change(\''+it.id+'\',1)">+</button></div></div></div></div>';
     });
     html+='</section>';
   });
