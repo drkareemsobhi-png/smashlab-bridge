@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ديمو Codex — SmashLab — المنيو واطلب أونلاين</title>
+<meta name="description" content="منيو SmashLab الكامل — اختار طلبك وابعته على واتساب في ثانية. توصيل داخل القاهرة.">
+<meta property="og:title" content="SmashLab — اطلب أونلاين 🍔">
+<meta property="og:description" content="أي ساندوتش بـ 90 جنيه. اختار من المنيو وابعت أوردرك على واتساب.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#E2231A;--charcoal:#141414;--cheddar:#F6A81C;--card:#1e1e1e;--line:rgba(255,255,255,.09);--wa:#25D366}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Cairo',sans-serif;background:var(--charcoal);color:#fff;line-height:1.55;padding-bottom:110px}
+  .anton{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.5px}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+  header{text-align:center;padding:26px 16px 6px;
+         background:radial-gradient(700px 260px at 50% -10%, rgba(226,35,26,.30), transparent 65%)}
+  .logo{font-family:'Anton',sans-serif;font-size:38px;letter-spacing:1px}
+  .logo b{color:var(--red)}
+  .slogan{display:inline-block;background:var(--cheddar);color:#141414;font-weight:900;font-size:12.5px;
+          padding:4px 14px;border-radius:30px;margin-top:8px;letter-spacing:.5px}
+  .deal{margin-top:14px;font-weight:900;font-size:18px;color:var(--cheddar)}
+  .note{font-size:13px;opacity:.6;margin-top:4px}
+
+  .cat{margin-top:30px}
+  .cat-head{display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--red);padding-bottom:8px;margin-bottom:14px}
+  .cat-head .ico{font-size:24px}
+  .cat-head h2{font-size:24px;color:#fff}
+  .cat-head .sub{font-size:13px;font-weight:700;color:var(--cheddar);margin-right:auto}
+
+  .item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px}
+  .item-body{flex:1;min-width:0}
+  .thumb{width:76px;height:76px;object-fit:cover;border-radius:12px;flex-shrink:0}
+  .item-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .item-name{font-weight:900;font-size:17px}
+  .item-price{font-family:'Anton',sans-serif;font-size:20px;color:var(--red);white-space:nowrap}
+  .item-price small{font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;opacity:.75}
+  .item-desc{font-size:12.5px;opacity:.62;margin-top:2px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .chip{border:1.5px solid var(--line);background:transparent;color:#fff;font-family:'Cairo',sans-serif;
+        font-weight:700;font-size:13px;padding:5px 14px;border-radius:30px;cursor:pointer}
+  .chip.on{background:var(--red);border-color:var(--red)}
+
+  .row2{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px}
+  .incart{font-size:12px;color:var(--cheddar);font-weight:700;min-height:16px}
+  .stepper{display:flex;align-items:center;gap:2px;background:#141414;border:1px solid var(--line);border-radius:12px}
+  .stepper button{width:42px;height:40px;border:none;background:transparent;color:#fff;font-size:22px;font-weight:900;cursor:pointer;border-radius:12px}
+  .stepper button.plus{color:var(--red)}
+  .stepper .q{min-width:34px;text-align:center;font-weight:900;font-size:17px}
+
+  .cartbar{position:fixed;bottom:0;right:0;left:0;z-index:60;background:rgba(20,20,20,.97);backdrop-filter:blur(8px);
+           border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+  .cartbar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .cartinfo{flex:1}
+  .cartinfo .n{font-size:12.5px;opacity:.7;font-weight:700}
+  .cartinfo .t{font-family:'Anton',sans-serif;font-size:23px;color:var(--cheddar)}
+  .gobtn{background:var(--red);color:#fff;border:none;font-family:'Cairo',sans-serif;font-weight:900;font-size:16.5px;
+         padding:14px 24px;border-radius:14px;cursor:pointer;box-shadow:0 6px 22px rgba(226,35,26,.42)}
+  .gobtn:disabled{opacity:.4;box-shadow:none}
+
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:none}
+  .sheet-bg.open{display:block}
+  .sheet{position:fixed;bottom:0;right:0;left:0;z-index:80;background:#1a1a1a;border-radius:22px 22px 0 0;
+         max-height:88vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease}
+  .sheet.open{transform:translateY(0)}
+  .sheet-in{max-width:640px;margin:0 auto;padding:20px 18px calc(24px + env(safe-area-inset-bottom))}
+  .sheet h3{font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .sheet h3 .x{margin-right:auto;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;opacity:.6}
+  .cline{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .cline .nm{flex:1;font-weight:800;font-size:14.5px}
+  .cline .nm span{display:block;font-size:12px;color:var(--cheddar);font-weight:700}
+  .cline .pr{font-family:'Anton',sans-serif;font-size:16px;color:var(--red);min-width:52px;text-align:left}
+  .cline .stepper button{width:34px;height:34px;font-size:18px}
+  .totline{display:flex;justify-content:space-between;align-items:center;padding:16px 0 6px;font-weight:900;font-size:17px}
+  .totline .v{font-family:'Anton',sans-serif;font-size:26px;color:var(--cheddar)}
+  .dnote{font-size:12px;opacity:.55;margin-bottom:12px}
+  .fld{width:100%;background:#141414;border:1px solid var(--line);border-radius:12px;color:#fff;
+       font-family:'Cairo',sans-serif;font-size:14.5px;padding:12px 14px;margin-bottom:10px;resize:none}
+  .fld::placeholder{color:rgba(255,255,255,.35)}
+  .fld.err{border-color:var(--red);box-shadow:0 0 0 2px rgba(226,35,26,.25)}
+  select.fld{appearance:none;-webkit-appearance:none;cursor:pointer}
+  .req{color:var(--red);font-weight:900}
+  .flbl{font-size:13px;font-weight:800;margin-bottom:6px;opacity:.85}
+  .gpsbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:transparent;
+          border:1.5px dashed var(--cheddar);color:var(--cheddar);font-family:'Cairo',sans-serif;font-weight:800;
+          font-size:14px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:6px}
+  .gpsstat{font-size:12.5px;font-weight:700;margin-bottom:10px;min-height:16px}
+  .gpsstat.ok{color:#3ddc74}
+  .gpsstat.bad{color:var(--red)}
+  .formerr{display:none;background:rgba(226,35,26,.12);border:1px solid var(--red);color:#ffb4b0;
+           font-size:13px;font-weight:700;border-radius:12px;padding:10px 14px;margin-bottom:10px}
+  .formerr.show{display:block}
+  .wabtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--wa);color:#fff;
+         border:none;font-family:'Cairo',sans-serif;font-weight:900;font-size:17.5px;padding:16px;border-radius:14px;
+         cursor:pointer;box-shadow:0 6px 22px rgba(37,211,102,.35);text-decoration:none}
+  .empty{text-align:center;opacity:.6;padding:26px 0;font-weight:700}
+
+  /* SmashLab White Lab — complete ordering experience */
+  :root{--red:#ec1c24;--ink:#171717;--paper:#f7f7f5;--line:#dededc;--soft:#f0f0ee;--wa:#25D366}
+  body{background:linear-gradient(135deg,#fff,#f6f6f4);color:var(--ink);padding-bottom:102px}
+  .anton{font-family:'Anton',sans-serif;letter-spacing:.5px}.wrap{max-width:1200px;padding:0 26px}
+  header{position:relative;display:flex;align-items:center;justify-content:space-between;text-align:right;padding:22px max(26px,calc((100% - 1148px)/2));background:rgba(255,255,255,.94);border-bottom:1px solid var(--line)}
+  header:before{content:'THE SMASH LAB  /  ORDER STATION';position:absolute;bottom:-1px;left:0;width:265px;height:3px;background:var(--red);font:700 8px Cairo,sans-serif;letter-spacing:1.6px;color:#777;transform:translateY(16px)}
+  header a{color:var(--ink)!important}.logo{font-size:34px;line-height:.9}.slogan{background:transparent;color:var(--red);padding:0;margin:5px 0 0;font-size:9px;letter-spacing:1.3px}.deal{margin:0;font:28px Anton,sans-serif;color:var(--ink);direction:rtl}.note{margin:3px 0 0;color:#706b67;opacity:1;font-size:11px}
+  main.wrap{padding-top:42px}.cat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0 0 42px}.cat-head{grid-column:1/-1;border:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0;display:flex;align-items:center;gap:9px}.cat-head:before{content:'EXPERIMENTS';font:700 9px Cairo,sans-serif;letter-spacing:1.5px;color:var(--red);order:-1}.cat-head .ico{font-size:21px}.cat-head h2{font:30px Anton,sans-serif;color:var(--ink);letter-spacing:.3px}.cat-head .sub{margin-right:auto;color:#777;font-size:11px}
+  .item{position:relative;display:flex;flex-direction:column;gap:0;margin:0;padding:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 5px 14px rgba(20,20,20,.035);transition:transform .2s,box-shadow .2s,border-color .2s}.item:hover{transform:translateY(-5px);border-color:#b9b9b7;box-shadow:0 18px 28px rgba(20,20,20,.1)}.thumb{order:-1;width:100%;height:178px;border:0;border-radius:0;object-fit:cover;background:var(--soft)}.item-body{display:flex;flex-direction:column;flex:1;padding:16px}.item-top{gap:8px;align-items:flex-start}.item-name{font-size:18px;line-height:1.25;color:var(--ink)}.item-price{font-size:22px;color:var(--red);line-height:1}.item-price small{color:#777;font-size:10px}.item-desc{min-height:40px;color:#716c67;opacity:1;font-size:11px;line-height:1.65;margin-top:8px}.opts{margin-top:12px}.chip{background:#fff;border:1px solid #d6d6d4;color:#292725;font-size:11px;padding:5px 11px}.chip.on{background:var(--red);border-color:var(--red);color:#fff}.row2{margin-top:auto;padding-top:14px;border-top:1px solid #ededeb}.incart{color:var(--red);font-size:10px}.stepper{background:#f5f5f3;border-color:#ddddda;border-radius:7px}.stepper button{color:var(--ink);width:34px;height:34px;font-size:20px}.stepper button.plus{background:var(--red);color:#fff;border-radius:6px}.stepper .q{font-size:14px;min-width:28px}
+  .cartbar{background:rgba(255,255,255,.94);border-top:1px solid var(--line);box-shadow:0 -8px 25px rgba(15,15,15,.08);padding:12px 20px calc(12px + env(safe-area-inset-bottom))}.cartbar-in{max-width:1200px}.cartinfo .n{color:#666;opacity:1}.cartinfo .t{color:var(--ink);font-size:24px}.gobtn{background:var(--red);padding:13px 26px;border-radius:7px;box-shadow:0 9px 20px rgba(236,28,36,.22)}
+  .sheet-bg{background:rgba(20,20,20,.38);backdrop-filter:blur(4px)}.sheet{background:#fff;border:1px solid #ddd;border-bottom:0;border-radius:18px 18px 0 0}.sheet-in{max-width:760px;color:var(--ink)}.sheet h3{font:30px Anton,sans-serif}.sheet h3 .x{color:#222}.cline{border-color:#ececea}.cline .nm{color:#222}.cline .nm span{color:var(--red)}.cline .pr,.totline .v{color:var(--red)}.dnote{color:#777;opacity:1}.flbl{color:#3a3633}.fld{background:#fafaf9;border-color:#ddd;color:#171717;border-radius:8px}.fld::placeholder{color:#a4a09c}.gpsbtn{border-color:var(--red);color:var(--red);border-radius:8px}.formerr{background:#fff0f0;color:#a81016}.wabtn{border-radius:8px;box-shadow:0 8px 20px rgba(37,211,102,.22)}
+  @media(max-width:760px){header{display:block;padding:19px 18px 14px}.deal{font-size:23px;margin-top:17px}.wrap{padding:0 14px}main.wrap{padding-top:30px}.cat{grid-template-columns:1fr;gap:12px;margin-bottom:34px}.cat-head h2{font-size:26px}.thumb{height:150px}.item-body{padding:14px}.item-desc{min-height:auto}.cartbar-in{gap:8px}.gobtn{font-size:14px;padding:12px 14px}.cartinfo .t{font-size:20px}}
+</style>
+<!-- TikTok Pixel -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var s=document.createElement("script");s.type="text/javascript",s.async=!0,s.src=r+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};
+  ttq.load('D918EORC77U8BPLPP5FG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+</head>
+<body>
+
+<header>
+  <a href="codex.html" style="color:#fff;text-decoration:none"><div class="logo">SMASH<b>LAB</b></div></a>
+  <div class="slogan">MORE SMASH. LESS CASH.</div>
+  <div class="deal">أي ساندوتش بـ 90 جنيه 🍔</div>
+  <div class="note">اختار طلبك وابعته على واتساب — التوصيل داخل القاهرة</div>
+</header>
+
+<main class="wrap" id="menu"></main>
+
+<div class="cartbar">
+  <div class="cartbar-in">
+    <div class="cartinfo">
+      <div class="n" id="cartCount">السلة فاضية</div>
+      <div class="t" id="cartTotal">0 ج</div>
+    </div>
+    <button class="gobtn" id="openCart" disabled>راجع الأوردر 🛒</button>
+  </div>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-in">
+    <h3>أوردرك 🍔 <button class="x" id="closeCart">✕</button></h3>
+    <div id="cartLines"></div>
+    <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
+    <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
+    <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
+    <div class="dnote">الدفع كاش عند الاستلام.</div>
+    <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
+    <select class="fld" id="area">
+      <option value="">اختار منطقتك…</option>
+    </select>
+    <div class="flbl">العنوان بالتفصيل <span class="req">*</span></div>
+    <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"></textarea>
+    <button class="gpsbtn" id="gpsBtn" type="button">📍 حدد لوكيشني الحالي (بيساعد الدليفري يوصلك أسرع)</button>
+    <div class="gpsstat" id="gpsStat"></div>
+    <textarea class="fld" id="notes" rows="2" placeholder="ملاحظات على الأوردر (اختياري)"></textarea>
+    <div class="formerr" id="formErr"></div>
+    <a class="wabtn" id="sendWa" href="#">ابعت الأوردر على واتساب ✅</a>
+  </div>
+</div>
+
+<script>
+var MENU = [
+  {cat:'سماش برجر ساندويتش', icon:'🍔', items:[
+    {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/burger.jpg'},
+    {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, img:'img/bbq.jpg'},
+    {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/mushroom.jpg'},
+    {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/bacon.jpg'},
+    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, img:'img/sweetchili.jpg'}
+  ]},
+  {cat:'فرايد تشيكن', icon:'🍗', sub:'حار أو أوريجنال', items:[
+    {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], img:'img/chicken.jpg'},
+    {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_bbq.jpg'},
+    {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_ranch.jpg'},
+    {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_sweetchili.jpg'},
+    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], img:'img/chicken_turkey.jpg'}
+  ]},
+  {cat:'الأصناف الجانبية', icon:'🍟', items:[
+    {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40},
+    {id:'cheesefries',name:'بطاطس بالجبنة',    desc:'', price:55},
+    {id:'strips',     name:'استريبس الدجاج',   desc:'تقدم مع صوص من اختيارك', price:70, opts:['أوريجنال','حار'], img:'img/strips.jpg'}
+  ]},
+  {cat:'الإضافات', icon:'➕', items:[
+    {id:'xpatty', name:'إضافة قطعة',  desc:'قطعة برجر أو دجاج زيادة جوه الساندوتش', price:50, opts:['برجر','دجاج']},
+    {id:'xsauce', name:'إضافة صوص',   desc:'', price:20, opts:['كاتشب','مايونيز','تيكساس','باربكيو','رانش','شيدر']}
+  ]},
+  {cat:'مشروبات', icon:'🥤', items:[
+    {id:'water', name:'مياه',         desc:'', price:10},
+    {id:'soda',  name:'مشروب غازي',   desc:'', price:20}
+  ]}
+];
+
+var PHONE = '201030080097';
+var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
+var src = new URLSearchParams(location.search).get('src') || 'menu';
+var cart = {};            // key = id|opt  ->  {name, opt, price, qty}
+var sel  = {};            // selected option per item id
+var items = {};           // id -> item
+MENU.forEach(function(c){ c.items.forEach(function(it){ items[it.id]=it; if(it.opts) sel[it.id]=it.opts[0]; }); });
+
+function key(id){ return id + '|' + (sel[id]||''); }
+function qtyOf(id){ var l=cart[key(id)]; return l?l.qty:0; }
+function fmt(n){ return n + ' ج'; }
+
+function change(id, d){
+  var k=key(id), it=items[id];
+  var l=cart[k] || {name:it.name, opt:sel[id]||'', price:it.price, qty:0};
+  l.qty += d;
+  if(l.qty<=0) delete cart[k]; else cart[k]=l;
+  if(d>0){ try{ ttq.track('AddToCart',{content_id:id, content_name:it.name, value:it.price, currency:'EGP'}); }catch(e){} }
+  render(id); renderBar(); renderSheet();
+}
+function pick(id, o){ sel[id]=o; render(id); }
+
+function render(id){
+  var it=items[id], q=qtyOf(id);
+  var el=document.getElementById('q_'+id); if(el) el.textContent=q;
+  if(it.opts){
+    var chips=document.querySelectorAll('[data-chip="'+id+'"]');
+    chips.forEach(function(c){ c.classList.toggle('on', c.dataset.opt===sel[id]); });
+  }
+  var inc=document.getElementById('in_'+id);
+  if(inc){
+    var parts=[];
+    Object.keys(cart).forEach(function(k){
+      if(k.split('|')[0]===id){ var l=cart[k]; parts.push((l.opt?l.opt+' ':'')+'×'+l.qty); }
+    });
+    inc.textContent = parts.length ? 'في السلة: '+parts.join('، ') : '';
+  }
+}
+
+function totals(){
+  var n=0,t=0;
+  Object.keys(cart).forEach(function(k){ n+=cart[k].qty; t+=cart[k].qty*cart[k].price; });
+  return {n:n,t:t};
+}
+function renderBar(){
+  var x=totals();
+  document.getElementById('cartCount').textContent = x.n ? (x.n===1 ? 'صنف واحد في السلة' : (x.n+' أصناف في السلة')) : 'السلة فاضية';
+  document.getElementById('cartTotal').textContent = fmt(x.t);
+  document.getElementById('openCart').disabled = !x.n;
+}
+
+function buildMenu(){
+  var html='';
+  MENU.forEach(function(c){
+    html+='<section class="cat"><div class="cat-head"><span class="ico">'+c.icon+'</span><h2 class="anton">'+c.cat+'</h2>'+(c.sub?'<span class="sub">'+c.sub+'</span>':'')+'</div>';
+    c.items.forEach(function(it){
+      html+='<div class="item">';
+      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="lazy">';
+      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+'</div>'+
+            '<div class="item-price">'+it.price+' <small>جنيه</small></div></div>';
+      if(it.desc) html+='<div class="item-desc">'+it.desc+'</div>';
+      if(it.opts){
+        html+='<div class="opts">';
+        it.opts.forEach(function(o){ html+='<button class="chip" data-chip="'+it.id+'" data-opt="'+o+'" onclick="pick(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
+        html+='</div>';
+      }
+      html+='<div class="row2"><div class="incart" id="in_'+it.id+'"></div>'+
+            '<div class="stepper"><button onclick="change(\''+it.id+'\',-1)">−</button>'+
+            '<span class="q" id="q_'+it.id+'">0</span>'+
+            '<button class="plus" onclick="change(\''+it.id+'\',1)">+</button></div></div></div></div>';
+    });
+    html+='</section>';
+  });
+  document.getElementById('menu').innerHTML=html;
+  Object.keys(items).forEach(render);
+}
+
+/* ---- cart sheet ---- */
+var sheet=document.getElementById('sheet'), bg=document.getElementById('sheetBg');
+function openSheet(){
+  renderSheet(); sheet.classList.add('open'); bg.classList.add('open');
+  var x=totals();
+  try{ ttq.track('InitiateCheckout',{value:x.t, currency:'EGP', quantity:x.n}); }catch(e){}
+}
+function closeSheet(){ sheet.classList.remove('open'); bg.classList.remove('open'); }
+document.getElementById('openCart').onclick=openSheet;
+document.getElementById('closeCart').onclick=closeSheet;
+bg.onclick=closeSheet;
+
+function sheetChange(k, d){
+  var l=cart[k]; if(!l) return;
+  l.qty+=d; if(l.qty<=0) delete cart[k];
+  render(k.split('|')[0]); renderBar(); renderSheet();
+  if(!totals().n) closeSheet();
+}
+function renderSheet(){
+  var box=document.getElementById('cartLines'), html='';
+  var ks=Object.keys(cart);
+  if(!ks.length){ box.innerHTML='<div class="empty">السلة فاضية 🛒</div>'; }
+  else{
+    ks.forEach(function(k){
+      var l=cart[k];
+      html+='<div class="cline"><div class="nm">'+l.name+(l.opt?'<span>'+l.opt+'</span>':'')+'</div>'+
+            '<div class="stepper"><button onclick="sheetChange(\''+k+'\',-1)">−</button>'+
+            '<span class="q">'+l.qty+'</span>'+
+            '<button class="plus" onclick="sheetChange(\''+k+'\',1)">+</button></div>'+
+            '<div class="pr">'+fmt(l.qty*l.price)+'</div></div>';
+    });
+    box.innerHTML=html;
+  }
+  var t=totals().t, fee=deliveryFee();
+  document.getElementById('sheetTotal').textContent=fmt(t);
+  document.getElementById('sheetDelivery').textContent = fee===null ? 'اختار منطقتك' : fmt(fee);
+  document.getElementById('sheetGrand').textContent = fee===null ? fmt(t)+' + توصيل' : fmt(t+fee);
+}
+
+/* ---- delivery zones (اسم المنطقة => سعر التوصيل) ---- */
+var ZONES=[
+  ['عباس العقاد',40], ['أحمد فخري',40], ['مكرم عبيد',40],
+  ['الطيران',50], ['حسن المأمون',50], ['مساكن الشروق',50], ['حسن الشريف',50],
+  ['مصطفى النحاس',50], ['سمير عبدالرؤوف',50], ['الحديقة الدولية',50], ['حي السفارات',50],
+  ['الحي السادس',50], ['الحي السابع',50], ['الحي الثامن',50], ['التبة',50], ['أحمد الزمر',50],
+  ['عبد الحميد بدوي',60], ['شيراتون',60], ['النزهة الجديدة',60],
+  ['الحي العاشر',60], ['حي الواحة',60], ['زهراء مدينة نصر',60],
+  ['جسر السويس',70], ['حدائق القبة',70],
+  ['جاردينيا',75], ['العباسية',75],
+  ['حلمية الزيتون',80], ['المطرية',90],
+  ['التجمع الخامس',100], ['شبرا مصر',120]
+];
+var FEES={};
+(function(){
+  var sel=document.getElementById('area');
+  ZONES.forEach(function(z){
+    FEES[z[0]]=z[1];
+    var o=document.createElement('option');
+    o.value=z[0]; o.textContent=z[0]+' — توصيل '+z[1]+'ج';
+    sel.appendChild(o);
+  });
+})();
+function deliveryFee(){ var a=document.getElementById('area').value; return a?FEES[a]:null; }
+
+/* ---- GPS (نطاق شرق القاهرة الكبير) ---- */
+var BOUNDS=[29.95,30.17,31.23,31.58]; // lat1,lat2,lng1,lng2
+var gps=null; // {lat,lng} داخل النطاق — أو {outside:true}
+var gpsStat=document.getElementById('gpsStat');
+document.getElementById('gpsBtn').addEventListener('click', function(){
+  if(!navigator.geolocation){ gpsStat.className='gpsstat bad'; gpsStat.textContent='المتصفح مش بيدعم تحديد الموقع — اكتب عنوانك بالتفصيل.'; return; }
+  gpsStat.className='gpsstat'; gpsStat.textContent='جاري تحديد موقعك…';
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude, lng=p.coords.longitude;
+    if(lat>=BOUNDS[0]&&lat<=BOUNDS[1]&&lng>=BOUNDS[2]&&lng<=BOUNDS[3]){
+      gps={lat:lat,lng:lng};
+      gpsStat.className='gpsstat ok'; gpsStat.textContent='✅ تم تحديد موقعك — هيتبعت للدليفري مع الأوردر';
+      hideErr();
+    }else{
+      gps={outside:true};
+      gpsStat.className='gpsstat bad'; gpsStat.textContent='❌ موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة.';
+    }
+  }, function(){
+    gps=null;
+    gpsStat.className='gpsstat bad'; gpsStat.textContent='مقدرناش نوصل لموقعك — تأكد إنك سامح بالإذن، أو اكتب عنوانك بالتفصيل.';
+  }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+});
+var errBox=document.getElementById('formErr');
+function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); }
+function hideErr(){ errBox.classList.remove('show'); }
+document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); renderSheet(); });
+document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
+
+/* ---- whatsapp ---- */
+var waFired=false;
+document.getElementById('sendWa').addEventListener('click', function(e){
+  var x=totals();
+  if(!x.n){ e.preventDefault(); return; }
+  var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr');
+  var area=areaEl.value, addr=addrEl.value.trim();
+  areaEl.classList.remove('err'); addrEl.classList.remove('err'); hideErr();
+  if(gps&&gps.outside){
+    e.preventDefault();
+    showErr('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏');
+    return;
+  }
+  if(!area){ e.preventDefault(); areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(addr.length<8){ e.preventDefault(); addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  var fee=FEES[area];
+  var lines=['أوردر SmashLab 🍔','','الطلب:'];
+  Object.keys(cart).forEach(function(k){
+    var l=cart[k];
+    lines.push('• '+l.qty+'× '+l.name+(l.opt?' ('+l.opt+')':'')+' — '+(l.qty*l.price)+'ج');
+  });
+  lines.push('');
+  lines.push('الأوردر: '+x.t+'ج');
+  lines.push('التوصيل: '+fee+'ج');
+  lines.push('الإجمالي النهائي: '+(x.t+fee)+' جنيه');
+  lines.push('المنطقة: '+area);
+  lines.push('العنوان: '+addr);
+  if(gps&&gps.lat) lines.push('اللوكيشن: https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6));
+  var notes=document.getElementById('notes').value.trim();
+  if(notes) lines.push('ملاحظات: '+notes);
+  lines.push('('+src+')');
+  this.href='https://wa.me/'+PHONE+'?text='+encodeURIComponent(lines.join('\n'));
+  if(!waFired){
+    waFired=true;
+    try{ ttq.track('Contact',{content_id:src, content_name:'whatsapp_order', value:x.t+fee, currency:'EGP'}); }catch(err){}
+    try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
+    // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك)
+    try{
+      var payload={
+        items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
+        subtotal:x.t, delivery:fee, total:x.t+fee, area:area, address:addr,
+        gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
+        notes:notes, src:src
+      };
+      navigator.sendBeacon(WEBHOOK, new Blob([JSON.stringify(payload)],{type:'text/plain;charset=UTF-8'}));
+    }catch(err){}
+    setTimeout(function(){ waFired=false; }, 3000);
+  }
+});
+
+buildMenu(); renderBar();
+</script>
+</body>
+</html>
