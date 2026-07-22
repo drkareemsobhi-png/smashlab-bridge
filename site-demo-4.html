@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ديمو 4 Marhey — SmashLab — أقوى سماش برجر في القاهرة | More Smash, Less Cash</title>
+<meta name="description" content="SmashLab — سماش برجر طازة في القاهرة. أي ساندوتش بـ 90 جنيه. اطلب أونلاين والتوصيل لمدينة نصر ومصر الجديدة والتجمع وشيراتون.">
+<link rel="canonical" href="https://smashlabeg.com/">
+<meta property="og:title" content="SmashLab — أقوى سماش برجر في القاهرة">
+<meta property="og:description" content="أي ساندوتش بـ 90 جنيه. More Smash, Less Cash. اطلب أونلاين دلوقتي.">
+<meta property="og:type" content="restaurant">
+<meta property="og:url" content="https://smashlabeg.com/">
+<meta property="og:image" content="https://smashlabeg.com/img/hero_mushroom.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cairo:wght@400;600;700;900&family=Marhey:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#E2231A; --charcoal:#141414; --cheddar:#F6A81C; --bun:#F3E7D0;
+    --ink:#141414; --paper:#F3E7D0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Cairo',sans-serif;background:var(--charcoal);color:#fff;line-height:1.6;overflow-x:hidden}
+  h1,h2,h3,.display{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.5px;line-height:1.05}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-weight:900;
+       font-size:18px;padding:15px 28px;border-radius:14px;box-shadow:0 8px 26px rgba(226,35,26,.45);
+       transition:transform .12s, box-shadow .12s;cursor:pointer;border:none}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(226,35,26,.55)}
+  .btn.wa{background:#25D366;box-shadow:0 8px 26px rgba(37,211,102,.4)}
+  .btn.wa:hover{box-shadow:0 12px 30px rgba(37,211,102,.5)}
+  .btn.ghost{background:#2a2a2a;box-shadow:none}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;background:rgba(20,20,20,.92);backdrop-filter:blur(8px);
+         border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{font-family:'Anton',sans-serif;font-size:26px;color:#fff;letter-spacing:1px}
+  .logo b{color:var(--red)}
+  .nav-links{display:flex;gap:26px;font-weight:700;font-size:15px}
+  .nav-links a{opacity:.85;transition:opacity .15s}
+  .nav-links a:hover{opacity:1;color:var(--cheddar)}
+  .nav .btn{padding:10px 18px;font-size:15px}
+  @media(max-width:720px){.nav-links{display:none}}
+
+  /* HERO */
+  .hero{position:relative;padding:56px 0 60px;
+        background:radial-gradient(1200px 500px at 50% -10%, rgba(226,35,26,.28), transparent 60%),var(--charcoal)}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;text-align:center}}
+  .badge{display:inline-block;background:var(--cheddar);color:var(--ink);font-weight:900;font-size:14px;
+         padding:7px 16px;border-radius:40px;margin-bottom:20px;letter-spacing:.5px}
+  .hero h1{font-size:clamp(44px,9vw,92px);color:#fff}
+  .hero h1 .red{color:var(--red)}
+  .tag{font-size:clamp(18px,4vw,26px);font-weight:900;color:var(--cheddar);margin:14px 0 6px;letter-spacing:1px}
+  .sub{font-size:17px;opacity:.85;max-width:560px;margin:0 0 28px}
+  @media(max-width:860px){.sub{margin:0 auto 28px}}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  @media(max-width:860px){.hero-cta{justify-content:center}}
+  .price-pop{margin-top:34px;display:inline-flex;align-items:center;gap:14px;background:#1e1e1e;
+             border:2px dashed var(--red);border-radius:18px;padding:16px 26px}
+  .price-pop .big{font-family:'Anton',sans-serif;font-size:52px;color:var(--red);line-height:1}
+  .price-pop .lbl{text-align:right;font-weight:900;font-size:16px}
+  .price-pop .lbl span{display:block;font-weight:600;font-size:13px;opacity:.7}
+  .hero-photo{position:relative;border-radius:26px;overflow:hidden;
+              box-shadow:0 30px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.08);
+              transform:rotate(-2deg)}
+  .hero-photo img{width:100%;height:520px;object-fit:cover}
+  @media(max-width:860px){.hero-photo{max-width:420px;margin:34px auto 0}.hero-photo img{height:400px}}
+  .hero-photo .tagimg{position:absolute;bottom:14px;right:14px;background:rgba(20,20,20,.85);backdrop-filter:blur(6px);
+                      border:1px solid rgba(246,168,28,.4);color:var(--cheddar);font-weight:900;font-size:13.5px;
+                      padding:8px 16px;border-radius:30px}
+
+  /* STRIP */
+  .strip{background:var(--red);padding:14px 0;overflow:hidden;white-space:nowrap}
+  .strip .run{display:inline-block;font-family:'Anton',sans-serif;font-size:20px;letter-spacing:2px;
+              animation:scroll 22s linear infinite}
+  .strip .run span{margin:0 26px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(50%)}}
+
+  /* SECTION */
+  section{padding:64px 0}
+  .sec-head{text-align:center;margin-bottom:40px}
+  .sec-head .kick{color:var(--cheddar);font-weight:900;letter-spacing:2px;font-size:14px}
+  .sec-head h2{font-size:clamp(30px,6vw,46px);color:#fff;margin-top:6px}
+
+  /* MENU */
+  .menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .card{background:#1c1c1c;border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;
+        transition:transform .15s, border-color .15s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);border-color:var(--red)}
+  .card .ph{height:210px;overflow:hidden;position:relative}
+  .card .ph img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+  .card:hover .ph img{transform:scale(1.05)}
+  .card .ph.emoji{display:flex;align-items:center;justify-content:center;font-size:64px;
+                  background:radial-gradient(300px 160px at 50% 20%, rgba(226,35,26,.30), #232323)}
+  .card .body{padding:20px 22px 24px;display:flex;flex-direction:column;flex:1}
+  .card h3{font-family:'Cairo';font-weight:900;font-size:21px;margin:0 0 6px;color:var(--cheddar)}
+  .card p{font-size:15px;opacity:.82;flex:1}
+  .card .from{align-self:flex-start;margin-top:14px;background:#2a2a2a;color:#fff;font-weight:900;
+              font-size:14px;padding:6px 14px;border-radius:30px}
+
+  /* FEATURES */
+  .feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;text-align:center}
+  .feat .emo{font-size:44px}
+  .feat h3{font-family:'Cairo';font-weight:900;font-size:19px;margin:10px 0 6px}
+  .feat p{font-size:14px;opacity:.8}
+
+  /* DELIVERY */
+  .areas{background:#1c1c1c;border-radius:22px;padding:40px 28px;text-align:center}
+  .area-chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px}
+  .chip{background:#2a2a2a;border:1px solid rgba(246,168,28,.35);color:var(--bun);font-weight:700;
+        padding:10px 20px;border-radius:40px;font-size:15px}
+
+  /* ORDER CTA */
+  .order-cta{text-align:center;background:radial-gradient(800px 300px at 50% 0%, rgba(226,35,26,.25), transparent 60%)}
+  .order-cta h2{font-size:clamp(28px,6vw,44px)}
+  .order-cta .num{font-family:'Anton',sans-serif;font-size:clamp(30px,7vw,52px);color:var(--cheddar);
+                  direction:ltr;margin:10px 0 24px;letter-spacing:2px}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  /* FOOTER */
+  footer{background:#0e0e0e;padding:44px 0 30px;text-align:center;border-top:1px solid rgba(255,255,255,.07)}
+  .foot-logo{font-family:'Anton',sans-serif;font-size:30px;letter-spacing:1px}
+  .foot-logo b{color:var(--red)}
+  .socials{display:flex;gap:18px;justify-content:center;margin:20px 0}
+  .socials a{width:44px;height:44px;border-radius:50%;background:#1c1c1c;display:flex;align-items:center;
+             justify-content:center;font-size:20px;transition:background .15s}
+  .socials a:hover{background:var(--red)}
+  .foot-info{font-size:14px;opacity:.7;line-height:1.9}
+  .foot-info a{color:var(--cheddar)}
+  .copy{margin-top:18px;font-size:13px;opacity:.5}
+
+  /* floating order */
+  .fab{position:fixed;bottom:20px;left:20px;z-index:60}
+  .fab .btn{box-shadow:0 10px 30px rgba(226,35,26,.5)}
+</style>
+<style>
+  h1,h2,h3,.display{font-family:'Marhey','Cairo',sans-serif;font-weight:700;letter-spacing:0;line-height:1.3}
+  .hero h1{font-size:clamp(38px,7.5vw,74px)}
+  .sec-head h2,.order-cta h2{font-size:clamp(26px,5vw,40px)}
+  .logo,.foot-logo,.strip .run,.price-pop .big,.order-cta .num{font-family:'Archivo Black',sans-serif}
+  .tag,.sec-head .kick{font-family:'Archivo Black',sans-serif;font-weight:400}
+  .tag{font-size:clamp(15px,3.2vw,21px)}
+  .strip .run{font-size:17px;letter-spacing:1px}
+</style>
+<!-- TikTok Pixel -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var s=document.createElement("script");s.type="text/javascript",s.async=!0,s.src=r+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};
+  ttq.load('D918EORC77U8BPLPP5FG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">SMASH<b>LAB</b></div>
+    <nav class="nav-links">
+      <a href="order-preview.html">المنيو</a>
+      <a href="#why">ليه إحنا</a>
+      <a href="#delivery">التوصيل</a>
+      <a href="#order">اطلب</a>
+    </nav>
+    <a class="btn" href="order-preview.html?src=site">🍔 اطلب أونلاين</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
+      <div class="tag">MORE SMASH · LESS CASH</div>
+      <div class="hero-cta">
+        <a class="btn" href="order-preview.html?src=site">🍔 اطلب أونلاين دلوقتي</a>
+        <a class="btn wa" href="https://wa.me/201030080097?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D9%85%D9%86%20%D8%B3%D9%85%D8%A7%D8%B4%20%D9%84%D8%A7%D8%A8%20%F0%9F%8D%94">💬 أو واتساب</a>
+      </div>
+      <div class="price-pop">
+        <span class="big">90</span>
+        <span class="lbl">جنيه بس<span>أي ساندوتش تختاره</span></span>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <img src="img/hero_mushroom.jpg" alt="سماش برجر SmashLab طازة وعصارة حقيقية" loading="eager">
+    </div>
+  </div>
+</section>
+
+<div class="strip"><div class="run">
+  <span>🍔 SMASH BURGER</span><span>🧀 CHEESE PULL</span><span>🍗 CRISPY TENDERS</span><span>🥓 DOUBLE BACON</span><span>🍟 LOADED FRIES</span>
+  <span>🍔 SMASH BURGER</span><span>🧀 CHEESE PULL</span><span>🍗 CRISPY TENDERS</span><span>🥓 DOUBLE BACON</span><span>🍟 LOADED FRIES</span>
+</div></div>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kick">THE MENU</div>
+      <h2>اللي هتطلبه</h2>
+    </div>
+    <div class="menu-grid">
+      <div class="card">
+        <div class="ph"><img src="img/burger.jpg" alt="سماش برجر" loading="lazy"></div>
+        <div class="body">
+          <h3>سماش برجر</h3>
+          <p>لحمة سماش طازة على الصاج، جبنة شيدر سايحة، وصوص سماش الخاص — كلاسيك، باربكيو، أو سويت شيلي.</p>
+          <span class="from">أي ساندوتش 90ج</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ph"><img src="img/bacon.jpg" alt="بيف بيكون سماش" loading="lazy"></div>
+        <div class="body">
+          <h3>بيف بيكون سماش</h3>
+          <p>لحمة سماش، بيف بيكون، جبنة على جبنة — للجعان اللي بيبالغ.</p>
+          <span class="from">أي ساندوتش 90ج</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ph"><img src="img/mushroom.jpg" alt="مشروم سماش" loading="lazy"></div>
+        <div class="body">
+          <h3>مشروم سماش</h3>
+          <p>سماش برجر بمشروم متشوّح وجبنة سايحة — طعم غني ومختلف.</p>
+          <span class="from">أي ساندوتش 90ج</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ph"><img src="img/chicken.jpg" alt="فرايد تشيكن" loading="lazy"></div>
+        <div class="body">
+          <h3>فرايد تشيكن</h3>
+          <p>صدر دجاج كرسبي مقرمش — كلاسيك، باربكيو، رانش، سويت شيلي، أو تركي. حار أو أوريجنال.</p>
+          <span class="from">أي ساندوتش 90ج</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ph"><img src="img/strips.jpg" alt="تشيكن استريبس" loading="lazy"></div>
+        <div class="body">
+          <h3>استريبس وبطاطس</h3>
+          <p>استريبس فراخ مقرمشة مع الصوص اللي نفسك فيه، وبطاطس محمّرة أو بالجبنة.</p>
+          <span class="from">من 40ج</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ph emoji">🥤</div>
+        <div class="body">
+          <h3>إضافات ومشروبات</h3>
+          <p>زوّد قطعة برجر أو دجاج، اختار صوصك، وكمّل الوجبة بمشروب ساقع.</p>
+          <span class="from">من 10ج</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px">
+      <a class="btn" href="order-preview.html?src=site" style="font-size:20px;padding:17px 36px">🛒 شوف المنيو الكامل واطلب أونلاين</a>
+      <p style="margin-top:14px;opacity:.65;font-size:14px">تختار طلبك بالكميات ويوصلنا في ثانية — من غير مكالمات</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why" style="background:#181818">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kick">WHY SMASHLAB</div>
+      <h2>ليه سماش لاب؟</h2>
+    </div>
+    <div class="feats">
+      <div class="feat"><div class="emo">🔥</div><h3>طازة على الطلب</h3><p>بنسمّح اللحمة لحظة ما تطلب — مفيش حاجة واقفة.</p></div>
+      <div class="feat"><div class="emo">💸</div><h3>سعر مفاجأة</h3><p>أي ساندوتش بـ90 جنيه. جودة عالية بأخف سعر.</p></div>
+      <div class="feat"><div class="emo">🛒</div><h3>اطلب أونلاين</h3><p>منيو كامل، تختار وتبعت في ثواني — من غير انتظار على التليفون.</p></div>
+      <div class="feat"><div class="emo">🛵</div><h3>توصيل سريع</h3><p>بيوصلك لحد باب البيت في شرق القاهرة.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERY -->
+<section id="delivery">
+  <div class="wrap">
+    <div class="areas">
+      <div class="sec-head" style="margin-bottom:6px">
+        <div class="kick">DELIVERY</div>
+        <h2>بنوصّلك فين</h2>
+      </div>
+      <p style="opacity:.82">مطبخ سماش لاب — توصيل لمعظم مناطق شرق القاهرة، والتوصيل بيبدأ من 40ج</p>
+      <div class="area-chips">
+        <span class="chip">مدينة نصر</span>
+        <span class="chip">مصر الجديدة</span>
+        <span class="chip">شيراتون</span>
+        <span class="chip">التجمع الخامس</span>
+        <span class="chip">الزيتون والمطرية</span>
+        <span class="chip">العباسية وحدائق القبة</span>
+        <span class="chip">وأكتر…</span>
+      </div>
+      <p style="margin-top:22px;opacity:.7;font-size:14px">اختار منطقتك في صفحة الطلب وهتلاقي سعر التوصيل بالظبط قبل ما تأكد.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER CTA -->
+<section id="order" class="order-cta">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:10px">
+      <div class="kick">ORDER NOW</div>
+      <h2>جعان؟ اطلب دلوقتي 🍔</h2>
+    </div>
+    <div class="num">0103 008 0097</div>
+    <div class="cta-row">
+      <a class="btn" href="order-preview.html?src=site">🍔 اطلب أونلاين</a>
+      <a class="btn wa" href="https://wa.me/201030080097?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D9%85%D9%86%20%D8%B3%D9%85%D8%A7%D8%B4%20%D9%84%D8%A7%D8%A8%20%F0%9F%8D%94">💬 كلّمنا على واتساب</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-logo">SMASH<b>LAB</b></div>
+    <div class="socials">
+      <a href="https://www.tiktok.com/@smashlab.burger" aria-label="TikTok" title="TikTok">🎵</a>
+      <a href="https://www.instagram.com/smashlab.eg" aria-label="Instagram" title="Instagram">📷</a>
+      <a href="https://www.facebook.com/smashlab.burger" aria-label="Facebook" title="Facebook">📘</a>
+      <a href="https://wa.me/201030080097" aria-label="WhatsApp" title="WhatsApp">💬</a>
+    </div>
+    <div class="foot-info">
+      SmashLab — سماش برجر كلاود كيتشن، القاهرة<br>
+      اطلب أونلاين: <a href="order-preview.html">smashlabeg.com/order</a> — أو واتساب: <a href="https://wa.me/201030080097" dir="ltr">01030080097</a><br>
+      مواعيد العمل: يوميًا من 1 ظهرًا حتى 2 صباحًا
+    </div>
+    <div class="copy">© 2026 SmashLab. All rights reserved.</div>
+  </div>
+</footer>
+
+<div class="fab">
+  <a class="btn" href="order-preview.html?src=site">🍔 اطلب</a>
+</div>
+
+</body>
+</html>
