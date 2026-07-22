@@ -4,88 +4,167 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SmashLab — اختار الفونت 🔤</title>
+<title>SmashLab — اختار الفونت والكلام 🔤</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@400;700;900&family=Changa:wght@400;700;800&family=Alexandria:wght@400;700;900&family=Noto+Kufi+Arabic:wght@400;700;900&family=Almarai:wght@400;700;800&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Archivo+Black&family=Passion+One:wght@700;900&family=Bungee&family=Oswald:wght@500;700&family=Cairo:wght@400;700;900&family=Changa:wght@400;700;800&family=Alexandria:wght@400;700;900&family=Noto+Kufi+Arabic:wght@400;700;900&family=Almarai:wght@400;700;800&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#141414;color:#fff;font-family:'Cairo',sans-serif;padding:20px 16px 60px}
-  .intro{text-align:center;max-width:640px;margin:0 auto 10px}
+  .intro{text-align:center;max-width:640px;margin:0 auto 6px}
   .intro h2{font-size:22px;font-weight:900}
   .intro p{font-size:14px;opacity:.65;margin-top:6px;line-height:1.7}
-  .card{max-width:640px;margin:26px auto 0;background:#1b1b1b;border:1px solid rgba(255,255,255,.09);
-        border-radius:20px;padding:26px 20px 30px;text-align:center;
+  .sechead{max-width:640px;margin:40px auto 4px;font-size:19px;font-weight:900;color:#F6A81C;
+           border-bottom:3px solid #E2231A;padding-bottom:8px}
+  .sechead small{display:block;font-size:13px;font-weight:700;color:#fff;opacity:.6;margin-top:4px}
+
+  .card{max-width:640px;margin:22px auto 0;background:#1b1b1b;border:1px solid rgba(255,255,255,.09);
+        border-radius:20px;padding:24px 20px 28px;text-align:center;
         background-image:radial-gradient(500px 200px at 50% -10%, rgba(226,35,26,.28), transparent 65%)}
   .num{display:inline-block;background:#F6A81C;color:#141414;font-weight:900;font-size:15px;
-       padding:6px 20px;border-radius:30px;margin-bottom:18px}
-  h1{font-weight:900;font-size:38px;line-height:1.35;color:#fff}
+       padding:6px 20px;border-radius:30px;margin-bottom:16px}
+  h1{font-weight:900;font-size:36px;line-height:1.35;color:#fff}
   h1 .red{color:#E2231A}
-  .tag{font-family:'Anton',sans-serif;font-size:17px;color:#F6A81C;letter-spacing:2px;margin-top:10px}
-  .sub{font-size:15.5px;opacity:.78;margin-top:14px;line-height:1.9;max-width:520px;margin-inline:auto}
+  .sub{font-size:15.5px;opacity:.82;margin-top:12px;line-height:1.95;max-width:520px;margin-inline:auto}
   .btn{display:inline-block;background:#E2231A;color:#fff;text-decoration:none;font-weight:900;font-size:17px;
-       padding:13px 28px;border-radius:13px;margin-top:18px;box-shadow:0 6px 22px rgba(226,35,26,.4)}
+       padding:12px 26px;border-radius:13px;margin-top:16px;box-shadow:0 6px 22px rgba(226,35,26,.4)}
+
   .f1 h1,.f1 .sub,.f1 .btn{font-family:'Cairo',sans-serif}
   .f2 h1,.f2 .sub,.f2 .btn{font-family:'Changa',sans-serif}
   .f3 h1,.f3 .sub,.f3 .btn{font-family:'Alexandria',sans-serif}
   .f4 h1,.f4 .sub,.f4 .btn{font-family:'Noto Kufi Arabic',sans-serif}
   .f5 h1,.f5 .sub,.f5 .btn{font-family:'Almarai',sans-serif}
   .f6 h1,.f6 .sub,.f6 .btn{font-family:'Tajawal',sans-serif}
+
+  .en{direction:ltr}
+  .en .logo{font-size:44px;letter-spacing:1px;line-height:1.1}
+  .en .logo b{color:#E2231A}
+  .en .tagline{font-size:19px;color:#F6A81C;letter-spacing:2.5px;margin-top:10px}
+  .en .price{font-size:56px;color:#E2231A;margin-top:14px;line-height:1}
+  .en .price small{font-size:16px;color:#fff;opacity:.7;letter-spacing:1px}
+  .eA .logo,.eA .tagline,.eA .price{font-family:'Anton',sans-serif}
+  .eB .logo,.eB .tagline,.eB .price{font-family:'Bebas Neue',sans-serif}
+  .eC .logo,.eC .tagline,.eC .price{font-family:'Archivo Black',sans-serif}
+  .eD .logo,.eD .tagline,.eD .price{font-family:'Passion One',sans-serif;font-weight:900}
+  .eE .logo,.eE .tagline,.eE .price{font-family:'Bungee',sans-serif}
+  .eF .logo,.eF .tagline,.eF .price{font-family:'Oswald',sans-serif;font-weight:700}
+
+  .copy{max-width:640px;margin:22px auto 0;background:#1b1b1b;border:1px solid rgba(255,255,255,.09);
+        border-radius:20px;padding:22px 20px}
+  .copy .num{margin-bottom:12px}
+  .copy p{font-size:16.5px;line-height:2;opacity:.92}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h2>اختار فونت SmashLab 🔤</h2>
-  <p>نفس الجزء بالظبط متكرر بـ6 فونتات مختلفة — شوفهم وقولي رقم اللي يعجبك، وهطبّقه على الموقع كله (العناوين والكلام). الإنجليزي «MORE SMASH» ثابت زي ما هو.</p>
+  <h2>اختار: الكلام + فونت العربي + فونت الإنجليزي 🔤</h2>
+  <p>3 اختيارات منفصلة — رد عليا بحاجة زي: «كلام 2، عربي 3، إنجليزي B» وأنا أطبقهم على الموقع كله وأوريك قبل التشغيل.</p>
 </div>
 
+<div class="sechead">أولاً: الكلام اللي تحت العنوان<small>اقرأهم بصوت عالي — اللي يجوعك هو الصح</small></div>
+
+<div class="copy">
+  <span class="num">كلام 1</span>
+  <p>اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
+</div>
+
+<div class="copy">
+  <span class="num">كلام 2</span>
+  <p>مش هنقعد نقولك أحلى برجر في القاهرة… اطلب مرة واحدة بس، وأول قضمة هي اللي هتتكلم.</p>
+</div>
+
+<div class="copy">
+  <span class="num">كلام 3</span>
+  <p>البرجر عندنا بيتعمل لحظة ما بتطلب — مش قاعد مستنيك من الصبح. عشان كده بيوصلك سخن، والجبنة لسه سايحة.</p>
+</div>
+
+<div class="sechead">ثانياً: فونت العربي<small>العنوان والكلام — مجرب هنا بكلام 1</small></div>
+
 <div class="card f1">
-  <span class="num">1 — Cairo (الحالي)</span>
+  <span class="num">عربي 1 — Cairo (الحالي)</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
 </div>
 
 <div class="card f2">
-  <span class="num">2 — Changa</span>
+  <span class="num">عربي 2 — Changa</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
 </div>
 
 <div class="card f3">
-  <span class="num">3 — Alexandria</span>
+  <span class="num">عربي 3 — Alexandria</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
 </div>
 
 <div class="card f4">
-  <span class="num">4 — Noto Kufi</span>
+  <span class="num">عربي 4 — Noto Kufi</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
 </div>
 
 <div class="card f5">
-  <span class="num">5 — Almarai</span>
+  <span class="num">عربي 5 — Almarai</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
 </div>
 
 <div class="card f6">
-  <span class="num">6 — Tajawal</span>
+  <span class="num">عربي 6 — Tajawal</span>
   <h1>أقوى <span class="red">سماش برجر</span><br>في القاهرة</h1>
-  <div class="tag">MORE SMASH · LESS CASH</div>
-  <p class="sub">سماش برجر بيتسوى طازة على الحديد — قرمشة من برة، عصارة من جوه، وجبنة سايحة على كل قضمة. اطلب أونلاين ويوصلك سخن لحد الباب.</p>
+  <p class="sub">اللحمة بتندعس على الحديد لحد ما حروفها تقرمش، والجبنة بتسيح فوقيها وهي لسه بتنش. أول قضمة هتعرف إحنا ليه اسمنا سماش لاب.</p>
   <a class="btn">🍔 اطلب أونلاين دلوقتي</a>
+</div>
+
+<div class="sechead">ثالثاً: فونت الإنجليزي<small>اللوجو والسلوجان والأرقام</small></div>
+
+<div class="card en eA">
+  <span class="num">إنجليزي A — Anton (الحالي)</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
+</div>
+
+<div class="card en eB">
+  <span class="num">إنجليزي B — Bebas Neue</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
+</div>
+
+<div class="card en eC">
+  <span class="num">إنجليزي C — Archivo Black</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
+</div>
+
+<div class="card en eD">
+  <span class="num">إنجليزي D — Passion One</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
+</div>
+
+<div class="card en eE">
+  <span class="num">إنجليزي E — Bungee</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
+</div>
+
+<div class="card en eF">
+  <span class="num">إنجليزي F — Oswald</span>
+  <div class="logo">SMASH<b>LAB</b></div>
+  <div class="tagline">MORE SMASH · LESS CASH</div>
+  <div class="price">90 <small>EGP</small></div>
 </div>
 
 </body>
