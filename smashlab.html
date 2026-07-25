@@ -40,9 +40,8 @@
 <div class="box">
   <div class="logo">SMASHLAB</div>
   <div class="t">أي سندوتش بـ 90 جنيه 🍔</div>
-  <div class="s">دوس الزرار وابعتلنا طلبك على ماسنجر — هنرد عليك فورًا.</div>
-  <a class="btn" id="order" href="#" target="_blank" rel="noopener">اطلب دلوقتي على ماسنجر</a>
-  <a class="btn2" id="call" href="tel:01030080097">📞 أو اتصل واطلب <span class="num">0103 008 0097</span></a>
+  <a class="btn" id="call" href="tel:01030080097">للطلبات كلمنا على <span class="num">0103 008 0097</span></a>
+  <a class="btn2" id="order" href="#" target="_blank" rel="noopener">للمنيو والاستفسارات تواصل معنا</a>
   <div class="note">التوصيل داخل القاهرة</div>
 </div>
 <script>
@@ -50,7 +49,8 @@
   var src = q.get('src') || 'tiktok';
 
   // WhatsApp number 01030080097 was BANNED by Meta (2026-07) — the old wa.me link went nowhere.
-  // Destination is now Messenger: same inbox the Meta Messenger campaign already lands in.
+  // Orders moved to the phone line, which the ban never touched. Messenger is the secondary
+  // path for the menu and questions, and lands in the same inbox as the Meta campaign.
   var PAGE_ID = '996684950202290';
 
   // m.me passes ?ref= through to the page's messaging referral, so we keep per-post attribution
@@ -59,7 +59,8 @@
   document.getElementById('order').href = 'https://m.me/' + PAGE_ID + '?ref=' + ref;
 
   // Contact fires ONLY on a real tap — it must stay a measure of intent, not of page loads.
-  // Both buttons count: a call is just as much an order as a message.
+  // Orders are taken over the phone; Messenger only handles the menu and questions.
+  // Both taps still count as intent, but they are labelled apart so we can weigh them later.
   var fired = false;
   function tap(name) {
     return function () {
@@ -68,7 +69,7 @@
       try { ttq.track('Contact', { content_id: src, content_name: name }); } catch (e) {}
     };
   }
-  document.getElementById('order').addEventListener('click', tap('messenger_order'));
+  document.getElementById('order').addEventListener('click', tap('messenger_inquiry'));
   document.getElementById('call').addEventListener('click', tap('call_order'));
 </script>
 </body>
