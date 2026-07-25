@@ -15,6 +15,11 @@
        font-size:20px;font-weight:800;padding:18px 26px;border-radius:14px;
        box-shadow:0 6px 22px rgba(226,35,26,.42);transition:transform .12s}
   .btn:active{transform:scale(.97)}
+  .btn2{display:block;margin:14px auto 0;background:transparent;color:#fff;text-decoration:none;
+        font-size:17px;font-weight:700;padding:15px 26px;border-radius:14px;
+        border:2px solid rgba(255,255,255,.28);transition:transform .12s}
+  .btn2:active{transform:scale(.97)}
+  .num{direction:ltr;display:inline-block}
   .note{font-size:13px;opacity:.5;margin-top:16px}
 </style>
 <!-- TikTok Pixel -->
@@ -35,28 +40,36 @@
 <div class="box">
   <div class="logo">SMASHLAB</div>
   <div class="t">أي سندوتش بـ 90 جنيه 🍔</div>
-  <div class="s">دوس الزرار وابعتلنا طلبك على واتساب — هنرد عليك فورًا.</div>
-  <a class="btn" id="order" href="#">اطلب دلوقتي على واتساب</a>
+  <div class="s">دوس الزرار وابعتلنا طلبك على ماسنجر — هنرد عليك فورًا.</div>
+  <a class="btn" id="order" href="#" target="_blank" rel="noopener">اطلب دلوقتي على ماسنجر</a>
+  <a class="btn2" id="call" href="tel:01030080097">📞 أو اتصل واطلب <span class="num">0103 008 0097</span></a>
   <div class="note">التوصيل داخل القاهرة</div>
 </div>
 <script>
   var q = new URLSearchParams(location.search);
   var src = q.get('src') || 'tiktok';
-  var phone = '201030080097';
-  var text = encodeURIComponent('عايز أطلب من سماش لاب 🍔 (' + src + ')');
-  var wa = 'https://wa.me/' + phone + '?text=' + text;
 
-  var btn = document.getElementById('order');
-  btn.href = wa;
+  // WhatsApp number 01030080097 was BANNED by Meta (2026-07) — the old wa.me link went nowhere.
+  // Destination is now Messenger: same inbox the Meta Messenger campaign already lands in.
+  var PAGE_ID = '996684950202290';
+
+  // m.me passes ?ref= through to the page's messaging referral, so we keep per-post attribution
+  // and can still tell TikTok leads apart from Meta ones in the same inbox.
+  var ref = ('tt_' + src).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
+  document.getElementById('order').href = 'https://m.me/' + PAGE_ID + '?ref=' + ref;
 
   // Contact fires ONLY on a real tap — it must stay a measure of intent, not of page loads.
+  // Both buttons count: a call is just as much an order as a message.
   var fired = false;
-  btn.addEventListener('click', function () {
-    if (!fired) {
+  function tap(name) {
+    return function () {
+      if (fired) return;
       fired = true;
-      try { ttq.track('Contact', { content_id: src, content_name: 'whatsapp_order' }); } catch (e) {}
-    }
-  });
+      try { ttq.track('Contact', { content_id: src, content_name: name }); } catch (e) {}
+    };
+  }
+  document.getElementById('order').addEventListener('click', tap('messenger_order'));
+  document.getElementById('call').addEventListener('click', tap('call_order'));
 </script>
 </body>
 </html>
