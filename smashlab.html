@@ -58,19 +58,30 @@
   var ref = ('tt_' + src).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
   document.getElementById('order').href = 'https://m.me/' + PAGE_ID + '?ref=' + ref;
 
-  // Contact fires ONLY on a real tap — it must stay a measure of intent, not of page loads.
-  // Orders are taken over the phone; Messenger only handles the menu and questions.
-  // Both taps still count as intent, but they are labelled apart so we can weigh them later.
-  var fired = false;
-  function tap(name) {
+  // Events fire ONLY on a real tap — they must measure intent, not page loads.
+  //
+  // The two buttons fire DIFFERENT events. Labelling them with content_name on a single
+  // Contact was useless in practice: pixel/event/stats/ only breaks its numbers down by
+  // event type and drops content_name, so the call taps and the Messenger taps arrived
+  // as one indistinguishable pile and we could not tell what the campaign was buying.
+  //
+  //   call  -> Contact (CONSULT) = the Conversion adgroup's optimization event. Orders
+  //                                are taken over the phone, so this is the action worth
+  //                                paying for. It also inherits most of the old combined
+  //                                volume, which keeps the learning phase from resetting.
+  //   order -> ClickButton       = tracked, never optimized. Menu and questions only.
+  //
+  // Dedupe is per button rather than global, so someone who taps both is counted in both.
+  var fired = {};
+  function tap(event, name) {
     return function () {
-      if (fired) return;
-      fired = true;
-      try { ttq.track('Contact', { content_id: src, content_name: name }); } catch (e) {}
+      if (fired[name]) return;
+      fired[name] = true;
+      try { ttq.track(event, { content_id: src, content_name: name }); } catch (e) {}
     };
   }
-  document.getElementById('order').addEventListener('click', tap('messenger_inquiry'));
-  document.getElementById('call').addEventListener('click', tap('call_order'));
+  document.getElementById('order').addEventListener('click', tap('ClickButton', 'messenger_inquiry'));
+  document.getElementById('call').addEventListener('click', tap('Contact', 'call_order'));
 </script>
 </body>
 </html>
