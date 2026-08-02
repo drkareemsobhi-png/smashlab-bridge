@@ -145,6 +145,8 @@
   <div class="note">اختار طلبك وأكده أونلاين وهنتصل بيك — التوصيل داخل القاهرة</div>
 </header>
 
+<div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2 الضهر لحد 12 بليل.</div>
+
 <div class="wrap">
   <img class="hero" src="img/hero_mushroom.jpg" alt="SmashLab burger">
   <div class="installbar" id="installBar">
@@ -177,6 +179,8 @@
     <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
     <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
     <div class="dnote">الدفع كاش عند الاستلام — وهنتصل بيك لتأكيد الأوردر.</div>
+    <div class="flbl">الاسم <span class="req">*</span></div>
+    <input class="fld" id="cname" type="text" required minlength="2" maxlength="80" autocomplete="name" placeholder="اسمك">
     <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
     <select class="fld" id="area">
       <option value="">اختار منطقتك…</option>
@@ -304,7 +308,7 @@ function buildMenu(){
 /* ---- cart sheet ---- */
 var sheet=document.getElementById('sheet'), bg=document.getElementById('sheetBg');
 function openSheet(){
-  renderSheet(); sheet.classList.add('open'); bg.classList.add('open');
+  renderSheet(); hoursUI(); sheet.classList.add('open'); bg.classList.add('open');
   var x=totals();
   try{ ttq.track('InitiateCheckout',{value:x.t, currency:'EGP', quantity:x.n}); }catch(e){}
 }
@@ -393,21 +397,44 @@ function hideErr(){ errBox.classList.remove('show'); }
 document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); renderSheet(); });
 document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 
+
+/* ---- مواعيد استقبال الأوردرات (Africa/Cairo): من 14:00 حتى 00:00 ---- */
+function cairoHour(){
+  try{ return Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',hour:'numeric',hour12:false}).format(new Date())); }
+  catch(e){ return new Date().getHours(); }
+}
+function isOpenNow(){ var h=cairoHour(); return h>=14 && h<=23; }
+function hoursUI(){
+  var open=isOpenNow();
+  var bar=document.getElementById('closedBar');
+  var btn=document.getElementById('sendOrder');
+  if(bar) bar.style.display = open ? 'none' : 'block';
+  if(btn && !orderSent){
+    btn.disabled = !open;
+    btn.style.opacity = open ? '' : '.55';
+    btn.textContent = open ? 'أكد الأوردر ✅' : 'استقبال الأوردرات يبدأ الساعة 2 ظهرًا';
+  }
+}
+
 /* ---- تأكيد الأوردر (الشيت + تيليجرام مباشرة — من غير واتساب) ---- */
 var orderSent=false;
 function validPhone(p){ return /^01[0125][0-9]{8}$/.test(p); }
 document.getElementById('phone').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
+document.getElementById('cname').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 document.getElementById('sendOrder').addEventListener('click', function(){
   if(orderSent) return;
+  if(!isOpenNow()){ hoursUI(); showErr('المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2 الضهر لحد 12 بليل.'); return; }
   var x=totals();
   if(!x.n) return;
-  var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr'), phoneEl=document.getElementById('phone');
+  var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr'), phoneEl=document.getElementById('phone'), cnameEl=document.getElementById('cname');
   var area=areaEl.value, addr=addrEl.value.trim(), phone=phoneEl.value.replace(/\D/g,'');
-  areaEl.classList.remove('err'); addrEl.classList.remove('err'); phoneEl.classList.remove('err'); hideErr();
+  var cname=cnameEl.value.replace(/\s+/g,' ').trim();
+  areaEl.classList.remove('err'); addrEl.classList.remove('err'); phoneEl.classList.remove('err'); cnameEl.classList.remove('err'); hideErr();
   if(gps&&gps.outside){
     showErr('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏');
     return;
   }
+  if(cname.length<2){ cnameEl.classList.add('err'); showErr('اكتب اسمك عشان نعرف نأكد الأوردر معاك.'); cnameEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(!area){ areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01) عشان نقدر نأكد الأوردر معاك.'); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(addr.length<8){ addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
@@ -420,7 +447,8 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     var payload={
       items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
       subtotal:x.t, delivery:fee, total:x.t+fee, area:area,
-      address:'📞 '+phone+' — '+addr, phone:phone,
+      customer_name:cname,
+      address:'👤 '+cname+' — 📞 '+phone+' — '+addr, phone:phone,
       gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
       notes:notes, src:src
     };
@@ -432,12 +460,12 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     '<div style="font-size:56px;line-height:1">✅</div>'+
     '<h3 style="justify-content:center;margin:18px 0 8px">استلمنا أوردرك!</h3>'+
     '<p style="font-size:16px;font-weight:800;margin-bottom:6px">الإجمالي: '+(x.t+fee)+' جنيه — الدفع كاش عند الاستلام</p>'+
-    '<p style="font-size:14.5px;opacity:.75;line-height:1.9">هنتصل بيك على <b dir="ltr">'+phone+'</b> في خلال دقايق لتأكيد الأوردر،<br>والدليفري يوصلك على '+area+'.</p>'+
+    '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا '+cname+'! أوردرك وصل للمطبخ وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على '+area+'. لو في أي استفسار هنكلمك على <b dir="ltr">'+phone+'</b>.</p>'+
     '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">تمام 👌</button>'+
     '</div>';
 });
 
-buildMenu(); renderBar();
+buildMenu(); renderBar(); hoursUI(); setInterval(hoursUI, 60000);
 
 /* ---- PWA: service worker + install ---- */
 if('serviceWorker' in navigator){
