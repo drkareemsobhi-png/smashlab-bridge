@@ -40,7 +40,8 @@
 <div class="box">
   <div class="logo">SMASHLAB</div>
   <div class="t">أي سندوتش بـ 90 جنيه 🍔</div>
-  <a class="btn" id="call" href="tel:01030080097">للطلبات كلمنا على <span class="num">0103 008 0097</span></a>
+  <a class="btn" id="site" href="#">🍔 اطلب أونلاين دلوقتي</a>
+  <a class="btn" id="call" href="tel:01030080097" style="background:#2a2a2a;box-shadow:none">أو كلمنا على <span class="num">0103 008 0097</span></a>
   <a class="btn2" id="order" href="#" target="_blank" rel="noopener">للمنيو والاستفسارات تواصل معنا</a>
   <div class="note">التوصيل داخل القاهرة</div>
 </div>
@@ -57,6 +58,10 @@
   // and can still tell TikTok leads apart from Meta ones in the same inbox.
   var ref = ('tt_' + src).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
   document.getElementById('order').href = 'https://m.me/' + PAGE_ID + '?ref=' + ref;
+
+  // الطلب الأونلاين: نمرر نفس الـ src لصفحة الأوردر — هي اللي بتطلق أحداث الفانل كاملة
+  // (page/AddToCart/PlaceAnOrder) بنفس المصدر، فمفيش حدث إضافي هنا عشان الأرقام متتلخبطش.
+  document.getElementById('site').href = 'order.html?src=' + encodeURIComponent(ref);
 
   // Events fire ONLY on a real tap — they must measure intent, not page loads.
   //
