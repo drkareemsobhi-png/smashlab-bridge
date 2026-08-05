@@ -1,5 +1,5 @@
 /* SmashLab app service worker — يخدم ملفات التطبيق بس، باقي صفحات الموقع (لاندينج الإعلانات) مش بيلمسها */
-var CACHE = 'smashlab-app-v3';
+var CACHE = 'smashlab-app-v6';
 var ASSETS = [
   'app.html',
   'manifest.webmanifest',
@@ -16,7 +16,11 @@ var ASSETS = [
   'img/chicken_ranch.jpg',
   'img/chicken_sweetchili.jpg',
   'img/chicken_turkey.jpg',
-  'img/strips.jpg'
+  'img/strips.jpg',
+  'img/fries.jpg',
+  'img/cheese-fries.jpg',
+  'img/cola.jpg',
+  'img/water.jpg'
 ];
 
 self.addEventListener('install', function (e) {

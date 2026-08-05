@@ -64,6 +64,8 @@
   .item-desc{font-size:12.5px;opacity:.62;margin-top:2px}
 
   .opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .size-label{font-size:11px;font-weight:800;opacity:.75;margin-top:10px}
+  .size-opts{margin-top:6px}
   .chip{border:1.5px solid var(--line);background:transparent;color:#fff;font-family:'Cairo',sans-serif;
         font-weight:700;font-size:13px;padding:5px 14px;border-radius:30px;cursor:pointer}
   .chip.on{background:var(--red);border-color:var(--red)}
@@ -142,7 +144,7 @@
   <div class="logo">SMASH<b>LAB</b></div>
   <div class="slogan">MORE SMASH. LESS CASH.</div>
   <div class="deal">أي ساندوتش بـ 90 جنيه 🍔</div>
-  <div class="note">اختار طلبك وأكده أونلاين وهنتصل بيك — التوصيل داخل القاهرة</div>
+  <div class="note">اختار طلبك وأكده أونلاين — هيوصل للمطبخ فورًا</div>
 </header>
 
 <div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2 الضهر لحد 12 بليل.</div>
@@ -178,14 +180,14 @@
     <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
     <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
     <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
-    <div class="dnote">الدفع كاش عند الاستلام — وهنتصل بيك لتأكيد الأوردر.</div>
+    <div class="dnote">الدفع كاش عند الاستلام.</div>
     <div class="flbl">الاسم <span class="req">*</span></div>
     <input class="fld" id="cname" type="text" required minlength="2" maxlength="80" autocomplete="name" placeholder="اسمك">
     <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
     <select class="fld" id="area">
       <option value="">اختار منطقتك…</option>
     </select>
-    <div class="flbl">رقم الموبايل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(عشان نأكد الأوردر معاك)</span></div>
+    <div class="flbl">رقم الموبايل <span class="req">*</span></div>
     <input class="fld" id="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right">
     <div class="flbl">العنوان بالتفصيل <span class="req">*</span></div>
     <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"></textarea>
@@ -198,64 +200,77 @@
 </div>
 
 <script>
+var SANDWICH_UPGRADES = [{name:'دابل',price:140},{name:'تريبل',price:190}];
 var MENU = [
   {cat:'سماش برجر ساندويتش', icon:'🍔', items:[
-    {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/burger.jpg'},
-    {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, img:'img/bbq.jpg'},
-    {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/mushroom.jpg'},
-    {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, img:'img/bacon.jpg'},
-    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, img:'img/sweetchili.jpg'}
+    {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/burger.jpg'},
+    {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/bbq.jpg'},
+    {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/mushroom.jpg'},
+    {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/bacon.jpg'},
+    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/sweetchili.jpg'}
   ]},
   {cat:'فرايد تشيكن', icon:'🍗', sub:'حار أو أوريجنال', items:[
-    {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], img:'img/chicken.jpg'},
-    {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_bbq.jpg'},
-    {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_ranch.jpg'},
-    {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], img:'img/chicken_sweetchili.jpg'},
-    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], img:'img/chicken_turkey.jpg'}
+    {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken.jpg'},
+    {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_bbq.jpg'},
+    {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_ranch.jpg'},
+    {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_sweetchili.jpg'},
+    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_turkey.jpg'}
   ]},
   {cat:'الأصناف الجانبية', icon:'🍟', items:[
-    {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40},
-    {id:'cheesefries',name:'بطاطس بالجبنة',    desc:'', price:55},
+    {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40, img:'img/fries.jpg', eager:true},
+    {id:'cheesefries',name:'بطاطس بالجبنة',    desc:'', price:55, img:'img/cheese-fries.jpg', eager:true},
     {id:'strips',     name:'استريبس الدجاج',   desc:'تقدم مع صوص من اختيارك', price:70, opts:['أوريجنال','حار'], img:'img/strips.jpg'}
   ]},
   {cat:'الإضافات', icon:'➕', items:[
-    {id:'xpatty', name:'إضافة قطعة',  desc:'قطعة برجر أو دجاج زيادة جوه الساندوتش', price:50, opts:['برجر','دجاج']},
     {id:'xsauce', name:'إضافة صوص',   desc:'', price:20, opts:['كاتشب','مايونيز','تيكساس','باربكيو','رانش','شيدر']}
   ]},
   {cat:'مشروبات', icon:'🥤', items:[
-    {id:'water', name:'مياه',         desc:'', price:10},
-    {id:'soda',  name:'مشروب غازي',   desc:'', price:20}
+    {id:'water', name:'مياه',         desc:'', price:10, img:'img/water.jpg', eager:true},
+    {id:'soda',  name:'مشروب غازي',   desc:'', price:20, img:'img/cola.jpg', eager:true}
   ]}
 ];
 
 var PHONE = '201030080097';
 var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
 var src = new URLSearchParams(location.search).get('src') || 'app';
-var cart = {};            // key = id|opt  ->  {name, opt, price, qty}
+var cart = {};            // key = id|opt|size  ->  {name, opt, price, qty}
 var sel  = {};            // selected option per item id
+var sizeSel = {};         // selected sandwich size per item id
 var items = {};           // id -> item
-MENU.forEach(function(c){ c.items.forEach(function(it){ items[it.id]=it; if(it.opts) sel[it.id]=it.opts[0]; }); });
+MENU.forEach(function(c){ c.items.forEach(function(it){ items[it.id]=it; if(it.opts) sel[it.id]=it.opts[0]; if(it.sizes) sizeSel[it.id]='سنجل'; }); });
 
-function key(id){ return id + '|' + (sel[id]||''); }
+function selectedPrice(id){
+  var it=items[id], price=it.price;
+  (it.sizes||[]).forEach(function(s){ if(s.name===sizeSel[id]) price=s.price; });
+  return price;
+}
+function selectedOpt(id){ return [sel[id]||'',sizeSel[id]||''].filter(Boolean).join(' · '); }
+function key(id){ return id + '|' + (sel[id]||'') + '|' + (sizeSel[id]||''); }
 function qtyOf(id){ var l=cart[key(id)]; return l?l.qty:0; }
 function fmt(n){ return n + ' ج'; }
 
 function change(id, d){
-  var k=key(id), it=items[id];
-  var l=cart[k] || {name:it.name, opt:sel[id]||'', price:it.price, qty:0};
+  var k=key(id), it=items[id], price=selectedPrice(id);
+  var l=cart[k] || {name:it.name, opt:selectedOpt(id), price:price, qty:0};
   l.qty += d;
   if(l.qty<=0) delete cart[k]; else cart[k]=l;
-  if(d>0){ try{ ttq.track('AddToCart',{content_id:id, content_name:it.name, value:it.price, currency:'EGP'}); }catch(e){} }
+  if(d>0){ try{ ttq.track('AddToCart',{content_id:id, content_name:it.name, value:price, currency:'EGP'}); }catch(e){} }
   render(id); renderBar(); renderSheet();
 }
 function pick(id, o){ sel[id]=o; render(id); }
+function pickSize(id, o){ sizeSel[id]=sizeSel[id]===o?'سنجل':o; render(id); }
 
 function render(id){
   var it=items[id], q=qtyOf(id);
   var el=document.getElementById('q_'+id); if(el) el.textContent=q;
+  var priceEl=document.getElementById('price_'+id); if(priceEl) priceEl.innerHTML=selectedPrice(id)+' <small>جنيه</small>';
   if(it.opts){
     var chips=document.querySelectorAll('[data-chip="'+id+'"]');
     chips.forEach(function(c){ c.classList.toggle('on', c.dataset.opt===sel[id]); });
+  }
+  if(it.sizes){
+    var sizeChips=document.querySelectorAll('[data-size-chip="'+id+'"]');
+    sizeChips.forEach(function(c){ c.classList.toggle('on', c.dataset.size===sizeSel[id]); });
   }
   var inc=document.getElementById('in_'+id);
   if(inc){
@@ -285,13 +300,18 @@ function buildMenu(){
     html+='<section class="cat"><div class="cat-head"><span class="ico">'+c.icon+'</span><h2 class="anton">'+c.cat+'</h2>'+(c.sub?'<span class="sub">'+c.sub+'</span>':'')+'</div>';
     c.items.forEach(function(it){
       html+='<div class="item">';
-      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="lazy">';
+      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="'+(it.eager?'eager':'lazy')+'">';
       html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+'</div>'+
-            '<div class="item-price">'+it.price+' <small>جنيه</small></div></div>';
+            '<div class="item-price" id="price_'+it.id+'">'+it.price+' <small>جنيه</small></div></div>';
       if(it.desc) html+='<div class="item-desc">'+it.desc+'</div>';
       if(it.opts){
         html+='<div class="opts">';
         it.opts.forEach(function(o){ html+='<button class="chip" data-chip="'+it.id+'" data-opt="'+o+'" onclick="pick(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
+        html+='</div>';
+      }
+      if(it.sizes){
+        html+='<div class="size-label">السنجل '+it.price+'ج — اختار لو عايزه أكبر:</div><div class="opts size-opts">';
+        it.sizes.forEach(function(s){ html+='<button class="chip" data-size-chip="'+it.id+'" data-size="'+s.name+'" onclick="pickSize(\''+it.id+'\',\''+s.name+'\')">'+s.name+' — '+s.price+'ج</button>'; });
         html+='</div>';
       }
       html+='<div class="row2"><div class="incart" id="in_'+it.id+'"></div>'+
@@ -434,9 +454,9 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     showErr('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏');
     return;
   }
-  if(cname.length<2){ cnameEl.classList.add('err'); showErr('اكتب اسمك عشان نعرف نأكد الأوردر معاك.'); cnameEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(cname.length<2){ cnameEl.classList.add('err'); showErr('اكتب اسمك عشان نعرف الأوردر باسم مين.'); cnameEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(!area){ areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01) عشان نقدر نأكد الأوردر معاك.'); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01).'); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(addr.length<8){ addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   var fee=FEES[area];
   var notes=document.getElementById('notes').value.trim();
@@ -460,7 +480,7 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     '<div style="font-size:56px;line-height:1">✅</div>'+
     '<h3 style="justify-content:center;margin:18px 0 8px">استلمنا أوردرك!</h3>'+
     '<p style="font-size:16px;font-weight:800;margin-bottom:6px">الإجمالي: '+(x.t+fee)+' جنيه — الدفع كاش عند الاستلام</p>'+
-    '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا '+cname+'! أوردرك وصل للمطبخ وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على '+area+'. لو في أي استفسار هنكلمك على <b dir="ltr">'+phone+'</b>.</p>'+
+    '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا '+cname+'! أوردرك وصل للمطبخ وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على '+area+'.</p>'+
     '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">تمام 👌</button>'+
     '</div>';
 });
