@@ -20,9 +20,10 @@ var HEADERS = [
   'اسم العميل', 'رقم الموبايل'
 ];
 
-// مواعيد استقبال الأوردرات: من 14:00 (شامل) حتى 00:00 (غير شامل) بتوقيت القاهرة.
+// مواعيد استقبال الأوردرات: من 14:30 (شامل) حتى 23:30 (غير شامل) بتوقيت القاهرة.
 // ORDER_MODE في Script Properties: AUTO (افتراضي) / OPEN (فتح يدوي) / CLOSED (قفل يدوي).
-var OPEN_HOUR = 14;
+var OPEN_MINUTE = 14 * 60 + 30;
+var CLOSE_MINUTE = 23 * 60 + 30;
 
 function orderMode_() {
   var mode = (PropertiesService.getScriptProperties().getProperty('ORDER_MODE') || 'AUTO').toUpperCase();
@@ -33,8 +34,9 @@ function isOpenNow_() {
   var mode = orderMode_();
   if (mode === 'OPEN') return true;
   if (mode === 'CLOSED') return false;
-  var hour = Number(Utilities.formatDate(new Date(), TIMEZONE, 'H'));
-  return hour >= OPEN_HOUR && hour <= 23;
+  var time = Utilities.formatDate(new Date(), TIMEZONE, 'H:mm').split(':');
+  var minuteOfDay = Number(time[0]) * 60 + Number(time[1]);
+  return minuteOfDay >= OPEN_MINUTE && minuteOfDay < CLOSE_MINUTE;
 }
 
 function doPost(e) {

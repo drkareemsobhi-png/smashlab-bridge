@@ -137,7 +137,7 @@
   <div class="note">اختار طلبك وأكده أونلاين — هيوصل للمطبخ فورًا</div>
 </header>
 
-<div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2 الضهر لحد 12 بليل.</div>
+<div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.</div>
 
 <main class="wrap" id="menu"></main>
 
@@ -397,12 +397,17 @@ document.getElementById('area').addEventListener('change', function(){ this.clas
 document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 
 
-/* ---- مواعيد استقبال الأوردرات (Africa/Cairo): من 14:00 حتى 00:00 ---- */
-function cairoHour(){
-  try{ return Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',hour:'numeric',hour12:false}).format(new Date())); }
-  catch(e){ return new Date().getHours(); }
+/* ---- مواعيد استقبال الأوردرات (Africa/Cairo): من 14:30 شامل حتى 23:30 غير شامل ---- */
+var OPEN_MINUTE = 14 * 60 + 30;
+var CLOSE_MINUTE = 23 * 60 + 30;
+function cairoMinuteOfDay(){
+  try{
+    var t=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date()).split(':');
+    return Number(t[0])*60+Number(t[1]);
+  }
+  catch(e){ var d=new Date(); return d.getHours()*60+d.getMinutes(); }
 }
-function isOpenNow(){ var h=cairoHour(); return h>=14 && h<=23; }
+function isOpenNow(){ var m=cairoMinuteOfDay(); return m>=OPEN_MINUTE && m<CLOSE_MINUTE; }
 function hoursUI(){
   var open=isOpenNow();
   var bar=document.getElementById('closedBar');
@@ -411,7 +416,7 @@ function hoursUI(){
   if(btn && !orderSent){
     btn.disabled = !open;
     btn.style.opacity = open ? '' : '.55';
-    btn.textContent = open ? 'أكد الأوردر ✅' : 'استقبال الأوردرات يبدأ الساعة 2 ظهرًا';
+    btn.textContent = open ? 'أكد الأوردر ✅' : 'استقبال الأوردرات يبدأ الساعة 2:30 ظهرًا';
   }
 }
 
@@ -422,7 +427,7 @@ document.getElementById('phone').addEventListener('input', function(){ this.clas
 document.getElementById('cname').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 document.getElementById('sendOrder').addEventListener('click', function(){
   if(orderSent) return;
-  if(!isOpenNow()){ hoursUI(); showErr('المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2 الضهر لحد 12 بليل.'); return; }
+  if(!isOpenNow()){ hoursUI(); showErr('المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.'); return; }
   var x=totals();
   if(!x.n) return;
   var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr'), phoneEl=document.getElementById('phone'), cnameEl=document.getElementById('cname');
