@@ -128,6 +128,17 @@
   ttq.page();
 }(window, document, 'ttq');
 </script>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1359958986284446');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1359958986284446&ev=PageView&noscript=1"/></noscript>
 </head>
 <body>
 
@@ -233,7 +244,8 @@ function change(id, d){
   var l=cart[k] || {name:it.name, opt:selectedOpt(id), price:price, qty:0};
   l.qty += d;
   if(l.qty<=0) delete cart[k]; else cart[k]=l;
-  if(d>0){ try{ ttq.track('AddToCart',{content_id:id, content_name:it.name, value:price, currency:'EGP'}); }catch(e){} }
+  if(d>0){ try{ ttq.track('AddToCart',{content_id:id, content_name:it.name, value:price, currency:'EGP'}); }catch(e){}
+           try{ fbq('track','AddToCart',{content_ids:[id], content_name:it.name, content_type:'product', value:price, currency:'EGP'}); }catch(e){} }
   render(id); renderBar(); renderSheet();
 }
 function pick(id, o){ sel[id]=o; render(id); }
@@ -310,6 +322,7 @@ function openSheet(){
   renderSheet(); hoursUI(); sheet.classList.add('open'); bg.classList.add('open');
   var x=totals();
   try{ ttq.track('InitiateCheckout',{value:x.t, currency:'EGP', quantity:x.n}); }catch(e){}
+  try{ fbq('track','InitiateCheckout',{value:x.t, currency:'EGP', num_items:x.n}); }catch(e){}
 }
 function closeSheet(){ sheet.classList.remove('open'); bg.classList.remove('open'); }
 document.getElementById('openCart').onclick=openSheet;
@@ -446,6 +459,7 @@ document.getElementById('sendOrder').addEventListener('click', function(){
   var notes=document.getElementById('notes').value.trim();
   try{ ttq.track('Contact',{content_id:src, content_name:'order_confirm', value:x.t+fee, currency:'EGP'}); }catch(err){}
   try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
+  try{ fbq('track','Purchase',{value:x.t+fee, currency:'EGP', num_items:x.n, content_type:'product'}); }catch(err){}
   // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك) — رقم الموبايل جوه العنوان عشان يوصل للمطبخ فورًا
   try{
     var payload={
