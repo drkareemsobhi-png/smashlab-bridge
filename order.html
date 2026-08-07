@@ -189,6 +189,7 @@ fbq('track','PageView');
   </div>
 </div>
 
+<script src="order-client.js"></script>
 <script>
 var SANDWICH_UPGRADES = [{name:'دابل',price:140},{name:'تريبل',price:190}];
 var MENU = [
@@ -458,29 +459,29 @@ document.getElementById('sendOrder').addEventListener('click', function(){
   var fee=FEES[area];
   var notes=document.getElementById('notes').value.trim();
   try{ ttq.track('Contact',{content_id:src, content_name:'order_confirm', value:x.t+fee, currency:'EGP'}); }catch(err){}
-  try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
-  try{ fbq('track','Purchase',{value:x.t+fee, currency:'EGP', num_items:x.n, content_type:'product'}); }catch(err){}
   // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك) — رقم الموبايل جوه العنوان عشان يوصل للمطبخ فورًا
-  try{
-    var payload={
-      items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
-      subtotal:x.t, delivery:fee, total:x.t+fee, area:area,
-      customer_name:cname,
-      address:'👤 '+cname+' — 📞 '+phone+' — '+addr, phone:phone,
-      gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
-      notes:notes, src:src
-    };
-    navigator.sendBeacon(WEBHOOK, new Blob([JSON.stringify(payload)],{type:'text/plain;charset=UTF-8'}));
-  }catch(err){}
+  var payload={
+    client_order_id:SmashLabOrders.createClientOrderId(),
+    items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
+    subtotal:x.t, delivery:fee, total:x.t+fee, area:area,
+    customer_name:cname,
+    address:'👤 '+cname+' — 📞 '+phone+' — '+addr, phone:phone,
+    gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
+    notes:notes, src:src
+  };
   orderSent=true;
-  document.querySelector('.sheet-in').innerHTML =
-    '<div style="text-align:center;padding:34px 10px 20px">'+
-    '<div style="font-size:56px;line-height:1">✅</div>'+
-    '<h3 style="justify-content:center;margin:18px 0 8px">استلمنا أوردرك!</h3>'+
-    '<p style="font-size:16px;font-weight:800;margin-bottom:6px">الإجمالي: '+(x.t+fee)+' جنيه — الدفع كاش عند الاستلام</p>'+
-    '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا '+cname+'! أوردرك وصل للمطبخ وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على '+area+'.</p>'+
-    '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">تمام 👌</button>'+
-    '</div>';
+  SmashLabOrders.submitWithConfirmation({
+    webhook:WEBHOOK,
+    payload:payload,
+    container:document.querySelector('.sheet-in'),
+    name:cname,
+    total:x.t+fee,
+    area:area,
+    onConfirmed:function(){
+      try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
+      try{ fbq('track','Purchase',{value:x.t+fee, currency:'EGP', num_items:x.n, content_type:'product'}); }catch(err){}
+    }
+  });
 });
 
 buildMenu(); renderBar(); hoursUI(); setInterval(hoursUI, 60000);

@@ -3,12 +3,30 @@ var TIMEZONE = 'Africa/Cairo';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
 
 var COL = {
+  CREATED_AT: 1,
+  ITEMS: 2,
+  QTY: 3,
+  SUBTOTAL: 4,
+  DELIVERY: 5,
+  TOTAL: 6,
+  AREA: 7,
+  ADDRESS: 8,
+  GPS: 9,
+  NOTES: 10,
+  SOURCE: 11,
   ORDER_ID: 12,
   STATUS: 13,
   STAFF: 14,
   DECIDED_AT: 15,
   TG_CHAT: 16,
-  TG_MESSAGE: 17
+  TG_MESSAGE: 17,
+  CUSTOMER_NAME: 18,
+  CUSTOMER_PHONE: 19,
+  CLIENT_ORDER_ID: 20,
+  TG_STATUS: 21,
+  TG_ATTEMPTS: 22,
+  TG_LAST_ATTEMPT: 23,
+  TG_LAST_ERROR: 24
 };
 
 var HEADERS = [
@@ -17,8 +35,13 @@ var HEADERS = [
   'اللوكيشن', 'ملاحظات', 'المصدر', 'رقم الأوردر',
   'حالة الأوردر', 'بواسطة', 'وقت القرار',
   'Telegram Chat ID', 'Telegram Message ID',
-  'اسم العميل', 'رقم الموبايل'
+  'اسم العميل', 'رقم الموبايل', 'Client Order ID',
+  'Telegram Status', 'Telegram Attempts', 'Telegram Last Attempt', 'Telegram Last Error'
 ];
+
+var ORDER_LOCK_TIMEOUT_MS = 10000;
+var TELEGRAM_MAX_ATTEMPTS = 5;
+var TELEGRAM_STALE_MINUTES = 5;
 
 // مواعيد استقبال الأوردرات: من 14:30 (شامل) حتى 23:30 (غير شامل) بتوقيت القاهرة.
 // ORDER_MODE في Script Properties: AUTO (افتراضي) / OPEN (فتح يدوي) / CLOSED (قفل يدوي).
@@ -58,7 +81,11 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+function doGet(e) {
+  var params = (e && e.parameter) || {};
+  if (params.action === 'order_status') {
+    return orderStatusResponse_(params);
+  }
   return ContentService.createTextOutput('SmashLab orders webhook OK');
 }
 
@@ -74,72 +101,262 @@ function handleOrder_(d) {
     return json_({ ok: false, code: 'NO_NAME', error: 'اكتب اسمك عشان نعرف نأكد الأوردر معاك.' });
   }
   var customerPhone = text_(d.phone || d.customer_phone);
+  var suppliedClientOrderId = text_(d.client_order_id);
+  var clientOrderId = clientOrderId_(suppliedClientOrderId);
+  if (suppliedClientOrderId && !clientOrderId) {
+    return json_({ ok: false, code: 'INVALID_ORDER_ID', error: 'معرف الأوردر غير صالح.' });
+  }
 
   var itemsList = Array.isArray(d.items) ? d.items : [];
   if (!itemsList.length) {
     throw new Error('Order payload has no items.');
   }
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-  ensureHeaders_(sh);
-
   var now = new Date();
-  var orderId = makeOrderId_(now);
-  var row = sh.getLastRow() + 1;
   var items = itemsList.map(function(it) {
     return number_(it.qty) + 'x ' + text_(it.name) + (it.opt ? ' (' + text_(it.opt) + ')' : '');
   }).join(' | ');
   var qty = itemsList.reduce(function(sum, it) {
     return sum + number_(it.qty);
   }, 0);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+  var lock = LockService.getScriptLock();
 
-  sh.getRange(row, 1, 1, HEADERS.length).setValues([[
-    formatDate_(now),
-    items,
-    qty,
-    number_(d.subtotal),
-    number_(d.delivery),
-    number_(d.total),
-    text_(d.area),
-    text_(d.address),
-    text_(d.gps),
-    text_(d.notes),
-    text_(d.src),
-    orderId,
-    'جديد',
-    '',
-    '',
-    '',
-    '',
-    customerName,
-    customerPhone
-  ]]);
+  if (!lock.tryLock(ORDER_LOCK_TIMEOUT_MS)) {
+    return json_({ ok: false, code: 'BUSY', error: 'ضغط مؤقت على استقبال الأوردرات. حاول تاني.' });
+  }
 
-  var cfg = getTelegramConfig_();
-  if (cfg.token && cfg.chat) {
-    var sent = telegramCall_('sendMessage', {
-      chat_id: cfg.chat,
-      text: buildOrderMessage_(d, orderId),
-      reply_markup: {
-        inline_keyboard: [[
-          { text: '✅ قبول الأوردر', callback_data: callbackData_('accept', row, orderId) },
-          { text: '❌ رفض الأوردر', callback_data: callbackData_('reject', row, orderId) }
-        ]]
-      }
-    }, cfg.token);
-
-    if (sent.ok && sent.result) {
-      sh.getRange(row, COL.TG_CHAT, 1, 2).setValues([[
-        String(sent.result.chat.id),
-        sent.result.message_id
-      ]]);
+  var row;
+  var orderId;
+  var duplicate = false;
+  try {
+    ensureHeaders_(sh);
+    var existing = clientOrderId ? findOrderByClientId_(sh, clientOrderId) : null;
+    if (existing) {
+      row = existing.row;
+      orderId = existing.orderId;
+      duplicate = true;
     } else {
-      console.error('Telegram sendMessage failed: ' + JSON.stringify(sent));
+      row = sh.getLastRow() + 1;
+      orderId = makeOrderId_(now);
+      sh.getRange(row, 1, 1, HEADERS.length).setValues([[
+        formatDate_(now),
+        items,
+        qty,
+        number_(d.subtotal),
+        number_(d.delivery),
+        number_(d.total),
+        text_(d.area),
+        text_(d.address),
+        text_(d.gps),
+        text_(d.notes),
+        text_(d.src),
+        orderId,
+        'جديد',
+        '',
+        '',
+        '',
+        '',
+        customerName,
+        customerPhone,
+        clientOrderId,
+        'PENDING',
+        0,
+        '',
+        ''
+      ]]);
+    }
+  } finally {
+    lock.releaseLock();
+  }
+
+  var telegram = deliverOrderTelegram_(sh, row, duplicate ? null : d, orderId);
+  return json_({
+    ok: true,
+    duplicate: duplicate,
+    order_id: orderId,
+    row: row,
+    telegram_status: telegram.status
+  });
+}
+
+function orderStatusResponse_(params) {
+  var clientOrderId = clientOrderId_(params.client_order_id);
+  var result = { ok: true, received: false };
+  if (clientOrderId) {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    var found = sh ? findOrderByClientId_(sh, clientOrderId) : null;
+    if (found) {
+      result = {
+        ok: true,
+        received: true,
+        order_id: found.orderId,
+        telegram_status: text_(sh.getRange(found.row, COL.TG_STATUS).getDisplayValue())
+      };
     }
   }
 
-  return json_({ ok: true, order_id: orderId, row: row });
+  if (params.callback) {
+    return jsonp_(params.callback, result);
+  }
+  return json_(result);
+}
+
+function findOrderByClientId_(sh, clientOrderId) {
+  if (!clientOrderId || sh.getLastRow() < 2) return null;
+  var rows = sh.getLastRow() - 1;
+  var values = sh.getRange(2, COL.CLIENT_ORDER_ID, rows, 1).getDisplayValues();
+  for (var index = values.length - 1; index >= 0; index -= 1) {
+    if (text_(values[index][0]) === clientOrderId) {
+      var row = index + 2;
+      return {
+        row: row,
+        orderId: text_(sh.getRange(row, COL.ORDER_ID).getDisplayValue())
+      };
+    }
+  }
+  return null;
+}
+
+function deliverOrderTelegram_(sh, row, orderData, orderId) {
+  var claim = claimTelegramDelivery_(sh, row);
+  if (!claim.claimed) return { status: claim.status, attempted: false };
+
+  var cfg = getTelegramConfig_();
+  if (!cfg.token || !cfg.chat) {
+    var configStatus = finishTelegramDelivery_(sh, row, claim.attempts, {
+      ok: false,
+      description: 'Missing TG_TOKEN or TG_CHAT.'
+    });
+    return { status: configStatus, attempted: true };
+  }
+
+  var messageText = orderData
+    ? buildOrderMessage_(orderData, orderId)
+    : buildStoredOrderMessage_(sh, row, orderId);
+  var sent = telegramCall_('sendMessage', {
+    chat_id: cfg.chat,
+    text: messageText,
+    reply_markup: {
+      inline_keyboard: [[
+        { text: '✅ قبول الأوردر', callback_data: callbackData_('accept', row, orderId) },
+        { text: '❌ رفض الأوردر', callback_data: callbackData_('reject', row, orderId) }
+      ]]
+    }
+  }, cfg.token);
+
+  var finalStatus = finishTelegramDelivery_(sh, row, claim.attempts, sent);
+  return { status: finalStatus, attempted: true };
+}
+
+function claimTelegramDelivery_(sh, row) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(ORDER_LOCK_TIMEOUT_MS)) return { claimed: false, status: 'BUSY' };
+  try {
+    var status = text_(sh.getRange(row, COL.TG_STATUS).getDisplayValue()) || 'PENDING';
+    var attempts = number_(sh.getRange(row, COL.TG_ATTEMPTS).getValue());
+    var lastAttempt = sh.getRange(row, COL.TG_LAST_ATTEMPT).getValue();
+    if (status === 'SENT') return { claimed: false, status: 'SENT' };
+    if (status === 'SENDING' && !telegramAttemptIsStale_(lastAttempt)) {
+      return { claimed: false, status: 'SENDING' };
+    }
+    if (attempts >= TELEGRAM_MAX_ATTEMPTS) {
+      return { claimed: false, status: 'FAILED' };
+    }
+
+    attempts += 1;
+    sh.getRange(row, COL.TG_STATUS, 1, 4).setValues([[
+      'SENDING',
+      attempts,
+      new Date(),
+      ''
+    ]]);
+    return { claimed: true, status: 'SENDING', attempts: attempts };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function finishTelegramDelivery_(sh, row, attempts, sent) {
+  if (sent.ok && sent.result) {
+    sh.getRange(row, COL.TG_CHAT, 1, 2).setValues([[
+      String(sent.result.chat.id),
+      sent.result.message_id
+    ]]);
+    sh.getRange(row, COL.TG_STATUS, 1, 4).setValues([[
+      'SENT',
+      attempts,
+      new Date(),
+      ''
+    ]]);
+    return 'SENT';
+  }
+
+  var nextStatus = attempts >= TELEGRAM_MAX_ATTEMPTS ? 'FAILED' : 'RETRY';
+  var error = text_(sent.description || sent.error || JSON.stringify(sent)).slice(0, 500);
+  sh.getRange(row, COL.TG_STATUS, 1, 4).setValues([[
+    nextStatus,
+    attempts,
+    new Date(),
+    error
+  ]]);
+  console.error('Telegram sendMessage failed for row ' + row + ': ' + error);
+  return nextStatus;
+}
+
+function telegramAttemptIsStale_(lastAttempt) {
+  if (!(lastAttempt instanceof Date) || Number.isNaN(lastAttempt.getTime())) return true;
+  return Date.now() - lastAttempt.getTime() >= TELEGRAM_STALE_MINUTES * 60 * 1000;
+}
+
+function retryPendingTelegram() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, attempted: 0 };
+
+  var startRow = Math.max(2, sh.getLastRow() - 199);
+  var count = sh.getLastRow() - startRow + 1;
+  var statuses = sh.getRange(startRow, COL.TG_STATUS, count, 1).getDisplayValues();
+  var attempted = 0;
+  for (var index = 0; index < statuses.length && attempted < 10; index += 1) {
+    var status = text_(statuses[index][0]);
+    if (['PENDING', 'RETRY', 'SENDING'].indexOf(status) === -1) continue;
+    var row = startRow + index;
+    var orderId = text_(sh.getRange(row, COL.ORDER_ID).getDisplayValue());
+    var result = deliverOrderTelegram_(sh, row, null, orderId);
+    if (result.attempted) attempted += 1;
+  }
+  return { ok: true, attempted: attempted };
+}
+
+function setupReliabilityTrigger() {
+  var exists = ScriptApp.getProjectTriggers().some(function(trigger) {
+    return trigger.getHandlerFunction() === 'retryPendingTelegram';
+  });
+  if (!exists) {
+    ScriptApp.newTrigger('retryPendingTelegram').timeBased().everyMinutes(1).create();
+  }
+  return { ok: true, created: !exists };
+}
+
+function buildStoredOrderMessage_(sh, row, orderId) {
+  var values = sh.getRange(row, 1, 1, HEADERS.length).getDisplayValues()[0];
+  var lines = ['🍔 أوردر جديد — SmashLab', '🧾 رقم الأوردر: ' + orderId, ''];
+  if (values[COL.CUSTOMER_NAME - 1]) lines.push('👤 الاسم: ' + values[COL.CUSTOMER_NAME - 1]);
+  if (values[COL.CUSTOMER_PHONE - 1]) lines.push('📞 الموبايل: ' + values[COL.CUSTOMER_PHONE - 1]);
+  lines.push('');
+  lines.push('• ' + values[COL.ITEMS - 1]);
+  lines.push('');
+  lines.push('الأوردر: ' + values[COL.SUBTOTAL - 1] + 'ج');
+  lines.push('التوصيل: ' + values[COL.DELIVERY - 1] + 'ج');
+  lines.push('الإجمالي النهائي: ' + values[COL.TOTAL - 1] + ' جنيه');
+  lines.push('📍 المنطقة: ' + values[COL.AREA - 1]);
+  lines.push('🏠 العنوان: ' + values[COL.ADDRESS - 1]);
+  if (values[COL.GPS - 1]) lines.push('🗺 اللوكيشن: ' + values[COL.GPS - 1]);
+  if (values[COL.NOTES - 1]) lines.push('📝 ملاحظات: ' + values[COL.NOTES - 1]);
+  lines.push('');
+  lines.push('🟡 الحالة: جديد');
+  return lines.join('\n');
 }
 
 function handleCallback_(query) {
@@ -344,12 +561,20 @@ function answerCallback_(callbackId, text, showAlert, token) {
 function telegramCall_(method, payload, token) {
   if (!token) return { ok: false, description: 'Missing Telegram token.' };
 
-  var response = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/' + method, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify(payload || {}),
-    muteHttpExceptions: true
-  });
+  var response;
+  try {
+    response = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/' + method, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload || {}),
+      muteHttpExceptions: true
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      description: 'Telegram request failed: ' + text_(err && err.message ? err.message : err)
+    };
+  }
 
   try {
     return JSON.parse(response.getContentText());
@@ -388,6 +613,11 @@ function formatDate_(date) {
   return Utilities.formatDate(date, TIMEZONE, 'yyyy-MM-dd HH:mm:ss');
 }
 
+function clientOrderId_(value) {
+  var id = text_(value);
+  return /^[A-Za-z0-9_-]{16,80}$/.test(id) ? id : '';
+}
+
 function number_(value) {
   var parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -401,4 +631,14 @@ function json_(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function jsonp_(callback, data) {
+  var safeCallback = text_(callback);
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]{0,63}$/.test(safeCallback)) {
+    return json_({ ok: false, error: 'invalid_callback' });
+  }
+  return ContentService
+    .createTextOutput(safeCallback + '(' + JSON.stringify(data) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
