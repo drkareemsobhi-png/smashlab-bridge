@@ -1,6 +1,7 @@
 var SHEET_NAME = 'Orders';
 var TIMEZONE = 'Africa/Cairo';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
+var TELEGRAM_GATEWAY_URL = 'https://smashlab-telegram-gateway.bubbly-tide-6226.chatgpt.site/api/telegram';
 
 var COL = {
   CREATED_AT: 1,
@@ -468,10 +469,16 @@ function setupTelegramWebhook() {
     throw new Error('Set TG_TOKEN and TG_CHAT in Script Properties first.');
   }
 
+  var webhookSecret = PropertiesService.getScriptProperties().getProperty('TG_WEBHOOK_SECRET');
+  if (!webhookSecret) {
+    throw new Error('Set TG_WEBHOOK_SECRET in Script Properties first.');
+  }
+
   var response = telegramCall_('setWebhook', {
-    url: WEB_APP_URL,
+    url: TELEGRAM_GATEWAY_URL,
+    secret_token: webhookSecret,
     allowed_updates: ['message', 'callback_query'],
-    drop_pending_updates: true
+    drop_pending_updates: false
   }, cfg.token);
 
   if (!response.ok) {
