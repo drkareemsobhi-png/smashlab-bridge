@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /site-preview.html
+Disallow: /order-preview.html
+Disallow: /coming-soon.html
+Disallow: /app.html
+Disallow: /smashlab.html
+Disallow: /elhadra.html
+
+Sitemap: https://smashlabeg.com/sitemap.xml
