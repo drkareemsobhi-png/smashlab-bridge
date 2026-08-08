@@ -1,7 +1,7 @@
 var SHEET_NAME = 'Orders';
 var TIMEZONE = 'Africa/Cairo';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
-var TELEGRAM_GATEWAY_URL = 'https://smashlab-telegram-gateway.bubbly-tide-6226.chatgpt.site/api/telegram';
+var TELEGRAM_GATEWAY_URL = 'https://smashlab-telegram-gateway-kareem.dr-kareemsobhi.chatgpt.site/api/telegram';
 
 var COL = {
   CREATED_AT: 1,
