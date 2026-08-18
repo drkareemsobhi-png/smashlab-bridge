@@ -436,7 +436,11 @@ document.getElementById('gpsBtn').addEventListener('click', function(){
 var errBox=document.getElementById('formErr');
 function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); }
 function hideErr(){ errBox.classList.remove('show'); }
-document.getElementById('area').addEventListener('change', function(){ this.classList.remove('err'); hideErr(); renderSheet(); });
+document.getElementById('area').addEventListener('change', function(){
+  // اختيار المنطقة يدويًا يلغي قفلة الـGPS — المنطقة هي المرجع مش موقع الجهاز الحالي
+  if(gps && gps.outside){ gps=null; gpsStat.className='gpsstat'; gpsStat.textContent=''; }
+  this.classList.remove('err'); hideErr(); renderSheet();
+});
 document.getElementById('addr').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 
 
