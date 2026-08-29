@@ -24,7 +24,9 @@ test('all order pages use the shared confirmed-delivery client', async () => {
 
 test('service worker ships and caches the reliability client', async () => {
   const worker = await readFile(new URL('sw.js', ROOT), 'utf8');
-  assert.match(worker, /smashlab-app-v8/);
+  // Cache name is version-bumped on every asset change — assert the shape, not the number,
+  // so a routine bump does not turn the publish gate red.
+  assert.match(worker, /var CACHE = 'smashlab-app-v\d+';/);
   assert.match(worker, /order-client\.js/);
 });
 
