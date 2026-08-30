@@ -59,6 +59,9 @@
   .thumb{width:76px;height:76px;object-fit:cover;border-radius:12px;flex-shrink:0}
   .item-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
   .item-name{font-weight:900;font-size:17px}
+  .badge{display:inline-block;background:var(--red);color:#fff;font-family:'Anton',sans-serif;
+         font-size:10.5px;letter-spacing:.6px;line-height:1;padding:3px 7px 4px;border-radius:4px;
+         margin-inline-start:7px;vertical-align:middle;transform:translateY(-1px)}
   .item-price{font-family:'Anton',sans-serif;font-size:20px;color:var(--red);white-space:nowrap}
   .item-price small{font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;opacity:.75}
   .item-desc{font-size:12.5px;opacity:.62;margin-top:2px}
@@ -222,7 +225,7 @@ var MENU = [
     {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/sweetchili.jpg'}
   ]},
   {cat:'ستيك', icon:'🥩', items:[
-    {id:'philly', name:'فيلي تشيز ستيك', desc:'شرائح لحم بقري متبلة متشوحة على الجريل مع البصل المكرمل وصوص المشروم مغطاة بالجبنة السايحة جوه عيش البريوش', price:150, img:'img/philly.jpg'}
+    {id:'philly', name:'فيلي تشيز ستيك', desc:'شرائح لحم بقري متبلة متشوحة على الجريل مع البصل المكرمل وصوص المشروم مغطاة بالجبنة السايحة جوه عيش البريوش', price:150, badge:'NEW', img:'img/philly.jpg'}
   ]},
   {cat:'فرايد تشيكن', icon:'🍗', sub:'حار أو أوريجنال', items:[
     {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken.jpg'},
@@ -232,7 +235,7 @@ var MENU = [
     {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_turkey.jpg'}
   ]},
   {cat:'ريزو', icon:'🍚', items:[
-    {id:'rizo', name:'ريزو', desc:'أرز بسمتي أصفر متبل مع قطع فراخ كريسبي مقرمشة، مع صوص كريمي غني ولمسة من الصوص الخاص.', price:90, opts:['أوريجنال','حار'], opts2:['رانش','باربكيو','جبنة','سويت شيلي'], img:'img/rizo.jpg'}
+    {id:'rizo', name:'ريزو', desc:'أرز بسمتي أصفر متبل مع قطع فراخ كريسبي مقرمشة، مع صوص كريمي غني ولمسة من الصوص الخاص.', price:90, opts:['أوريجنال','حار'], opts2:['رانش','باربكيو','جبنة','سويت شيلي'], badge:'NEW', img:'img/rizo.jpg'}
   ]},
   {cat:'الأصناف الجانبية', icon:'🍟', items:[
     {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40, img:'img/fries.jpg', eager:true},
@@ -326,7 +329,7 @@ function buildMenu(){
     c.items.forEach(function(it){
       html+='<div class="item">';
       if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="'+(it.eager?'eager':'lazy')+'">';
-      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+'</div>'+
+      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+(it.badge?'<span class="badge">'+it.badge+'</span>':'')+'</div>'+
             '<div class="item-price" id="price_'+it.id+'">'+it.price+' <small>جنيه</small></div></div>';
       if(it.desc) html+='<div class="item-desc">'+it.desc+'</div>';
       if(it.opts){
