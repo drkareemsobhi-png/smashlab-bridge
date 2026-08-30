@@ -204,12 +204,18 @@ var MENU = [
     {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/bacon.jpg'},
     {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/sweetchili.jpg'}
   ]},
+  {cat:'ستيك', icon:'🥩', items:[
+    {id:'philly', name:'فيلي تشيز ستيك', desc:'شرائح لحم بقري متبلة متشوحة على الجريل مع البصل المكرمل وصوص المشروم مغطاة بالجبنة السايحة جوه عيش البريوش', price:150, img:'img/philly.jpg'}
+  ]},
   {cat:'فرايد تشيكن', icon:'🍗', sub:'حار أو أوريجنال', items:[
     {id:'cchicken',  name:'كلاسيك تشيكن',      desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken.jpg'},
     {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_bbq.jpg'},
     {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_ranch.jpg'},
     {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_sweetchili.jpg'},
     {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_turkey.jpg'}
+  ]},
+  {cat:'ريزو', icon:'🍚', items:[
+    {id:'rizo', name:'ريزو', desc:'أرز بسمتي أصفر متبل مع قطع فراخ كريسبي مقرمشة، مع صوص كريمي غني ولمسة من الصوص الخاص.', price:90, opts:['أوريجنال','حار'], opts2:['رانش','باربكيو','جبنة','سويت شيلي'], img:'img/rizo.jpg'}
   ]},
   {cat:'الأصناف الجانبية', icon:'🍟', items:[
     {id:'fries',      name:'بطاطس محمرة',      desc:'', price:40, img:'img/fries.jpg', eager:true},
@@ -228,19 +234,20 @@ var MENU = [
 var PHONE = '201030080097';
 var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
 var src = new URLSearchParams(location.search).get('src') || 'menu';
-var cart = {};            // key = id|opt|size  ->  {name, opt, price, qty}
+var cart = {};            // key = id|opt|opt2|size  ->  {name, opt, price, qty}
 var sel  = {};            // selected option per item id
+var sel2 = {};            // selected second option per item id
 var sizeSel = {};         // selected sandwich size per item id
 var items = {};           // id -> item
-MENU.forEach(function(c){ c.items.forEach(function(it){ items[it.id]=it; if(it.opts) sel[it.id]=it.opts[0]; if(it.sizes) sizeSel[it.id]='سنجل'; }); });
+MENU.forEach(function(c){ c.items.forEach(function(it){ items[it.id]=it; if(it.opts) sel[it.id]=it.opts[0]; if(it.opts2) sel2[it.id]=it.opts2[0]; if(it.sizes) sizeSel[it.id]='سنجل'; }); });
 
 function selectedPrice(id){
   var it=items[id], price=it.price;
   (it.sizes||[]).forEach(function(s){ if(s.name===sizeSel[id]) price=s.price; });
   return price;
 }
-function selectedOpt(id){ return [sel[id]||'',sizeSel[id]||''].filter(Boolean).join(' · '); }
-function key(id){ return id + '|' + (sel[id]||'') + '|' + (sizeSel[id]||''); }
+function selectedOpt(id){ return [sel[id]||'',sel2[id]||'',sizeSel[id]||''].filter(Boolean).join(' · '); }
+function key(id){ return id+'|'+(sel[id]||'')+'|'+(sel2[id]||'')+'|'+(sizeSel[id]||''); }
 function qtyOf(id){ var l=cart[key(id)]; return l?l.qty:0; }
 function fmt(n){ return n + ' ج'; }
 
@@ -254,6 +261,7 @@ function change(id, d){
   render(id); renderBar(); renderSheet();
 }
 function pick(id, o){ sel[id]=o; render(id); }
+function pick2(id, o){ sel2[id]=o; render(id); }
 function pickSize(id, o){ sizeSel[id]=sizeSel[id]===o?'سنجل':o; render(id); }
 
 function render(id){
@@ -263,6 +271,10 @@ function render(id){
   if(it.opts){
     var chips=document.querySelectorAll('[data-chip="'+id+'"]');
     chips.forEach(function(c){ c.classList.toggle('on', c.dataset.opt===sel[id]); });
+  }
+  if(it.opts2){
+    var chips2=document.querySelectorAll('[data-chip2="'+id+'"]');
+    chips2.forEach(function(c){ c.classList.toggle('on', c.dataset.opt2===sel2[id]); });
   }
   if(it.sizes){
     var sizeChips=document.querySelectorAll('[data-size-chip="'+id+'"]');
@@ -303,6 +315,11 @@ function buildMenu(){
       if(it.opts){
         html+='<div class="opts">';
         it.opts.forEach(function(o){ html+='<button class="chip" data-chip="'+it.id+'" data-opt="'+o+'" onclick="pick(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
+        html+='</div>';
+      }
+      if(it.opts2){
+        html+='<div class="opts">';
+        it.opts2.forEach(function(o){ html+='<button class="chip" data-chip2="'+it.id+'" data-opt2="'+o+'" onclick="pick2(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
         html+='</div>';
       }
       if(it.sizes){
