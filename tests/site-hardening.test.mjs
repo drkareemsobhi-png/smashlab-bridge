@@ -105,5 +105,13 @@ test('browser client reports success only after a backend receipt', async () => 
   assert.equal(sent.length, 1);
   assert.equal(confirmedReceipt.order_id, 'SL-TEST-001');
   assert.match(container.innerHTML, /SL-TEST-001/);
-  assert.equal(storage.size, 0);
+
+  // الأوردر المعلّق لازم يتمسح عشان ما يتبعتش تاني.
+  assert.equal(storage.has('smashlab_pending_order_v1'), false);
+
+  // لكن لازم يفضل إيصال بالأوردر الناجح — من غيره الصفحة بتنسى بعد أي
+  // ريفريش والعميل بيعيد الطلب وهو فاكر إنه ضاع (اتكرر 1 و 6 سبتمبر 2026).
+  const receipt = JSON.parse(storage.get('smashlab_last_order_v1'));
+  assert.equal(receipt.order_id, 'SL-TEST-001');
+  assert.equal(typeof receipt.at, 'number');
 });

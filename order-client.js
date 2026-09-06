@@ -2,6 +2,10 @@
   'use strict';
 
   var PENDING_KEY = 'smashlab_pending_order_v1';
+  // إيصال آخر أوردر ناجح — بيفضل متخزن عشان الصفحة تفتكر إن العميل طلب فعلًا
+  // بعد أي ريفريش، فما يعيدش الطلب وهو فاكر إنه ضاع.
+  var RECEIPT_KEY = 'smashlab_last_order_v1';
+  var RECEIPT_TTL_MS = 45 * 60 * 1000;
   var CHECK_DELAYS = [400, 900, 1600, 2600, 4000];
 
   function createClientOrderId() {
@@ -38,6 +42,95 @@
       }
     } catch (err) {
       try { global.localStorage.removeItem(PENDING_KEY); } catch (ignored) {}
+    }
+  }
+
+  function rememberReceipt(orderId, options) {
+    try {
+      global.localStorage.setItem(RECEIPT_KEY, JSON.stringify({
+        order_id: orderId || '',
+        total: options && options.total != null ? String(options.total) : '',
+        at: Date.now()
+      }));
+    } catch (err) {}
+  }
+
+  function readReceipt() {
+    try {
+      var saved = JSON.parse(global.localStorage.getItem(RECEIPT_KEY) || 'null');
+      if (!saved || typeof saved.at !== 'number' || saved.dismissed) return null;
+      if (Date.now() - saved.at >= RECEIPT_TTL_MS) {
+        global.localStorage.removeItem(RECEIPT_KEY);
+        return null;
+      }
+      return saved;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function dismissReceipt() {
+    try {
+      var saved = JSON.parse(global.localStorage.getItem(RECEIPT_KEY) || 'null');
+      if (saved) {
+        saved.dismissed = true;
+        global.localStorage.setItem(RECEIPT_KEY, JSON.stringify(saved));
+      }
+    } catch (err) {}
+  }
+
+  function sinceLabel(at) {
+    var mins = Math.floor((Date.now() - at) / 60000);
+    if (mins < 1) return 'من شوية';
+    if (mins === 1) return 'من دقيقة';
+    if (mins === 2) return 'من دقيقتين';
+    if (mins <= 10) return 'من ' + mins + ' دقايق';
+    return 'من ' + mins + ' دقيقة';
+  }
+
+  function renderReceiptBanner() {
+    if (!global.document || !document.body) return null;
+    if (document.getElementById('slReceiptBanner')) return null;
+    var saved = readReceipt();
+    if (!saved) return null;
+
+    var bar = document.createElement('div');
+    bar.id = 'slReceiptBanner';
+    bar.setAttribute('style',
+      'position:relative;background:#0f7a3d;color:#fff;font-family:Cairo,sans-serif;' +
+      'direction:rtl;text-align:center;padding:12px 44px 13px;line-height:1.75;' +
+      'font-size:14px;font-weight:700;z-index:60');
+    bar.innerHTML =
+      '<div style="font-size:15px;font-weight:900">✅ أوردرك اتسجل عندنا ' +
+      escapeHtml(sinceLabel(saved.at)) + '</div>' +
+      (saved.order_id
+        ? '<div style="font-size:12.5px;font-weight:700;opacity:.92;margin-top:2px">رقم الأوردر: ' +
+          escapeHtml(saved.order_id) + '</div>'
+        : '') +
+      '<div style="font-size:12.5px;font-weight:600;opacity:.92;margin-top:3px">' +
+      'بنجهّزه دلوقتي — مش محتاج تطلب تاني. ' +
+      'لو عايز أوردر إضافي كمّل عادي.</div>' +
+      '<button type="button" id="slReceiptClose" aria-label="إخفاء" ' +
+      'style="position:absolute;top:8px;left:10px;background:transparent;border:0;color:#fff;' +
+      'font-size:20px;line-height:1;font-weight:900;cursor:pointer;opacity:.85;padding:2px 6px">×</button>';
+
+    document.body.insertBefore(bar, document.body.firstChild);
+    var close = document.getElementById('slReceiptClose');
+    if (close) {
+      close.addEventListener('click', function () {
+        dismissReceipt();
+        if (bar.parentNode) bar.parentNode.removeChild(bar);
+      });
+    }
+    return bar;
+  }
+
+  function initReceiptBanner() {
+    if (!global.document) return;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderReceiptBanner);
+    } else {
+      renderReceiptBanner();
     }
   }
 
@@ -117,6 +210,7 @@
 
   function renderSuccess(container, options, receipt) {
     var orderId = receipt && receipt.order_id ? receipt.order_id : '';
+    rememberReceipt(orderId, options);
     container.innerHTML =
       '<div style="text-align:center;padding:34px 10px 20px">' +
       '<div style="font-size:56px;line-height:1">✅</div>' +
@@ -172,6 +266,12 @@
     sendPayload: sendPayload,
     checkReceiptOnce: checkReceiptOnce,
     waitForReceipt: waitForReceipt,
-    submitWithConfirmation: submitWithConfirmation
+    submitWithConfirmation: submitWithConfirmation,
+    rememberReceipt: rememberReceipt,
+    readReceipt: readReceipt,
+    dismissReceipt: dismissReceipt,
+    renderReceiptBanner: renderReceiptBanner
   };
+
+  initReceiptBanner();
 })(window);
