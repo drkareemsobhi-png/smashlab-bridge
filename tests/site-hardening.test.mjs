@@ -105,6 +105,8 @@ test('browser client reports success only after a backend receipt', async () => 
   assert.equal(sent.length, 1);
   assert.equal(confirmedReceipt.order_id, 'SL-TEST-001');
   assert.match(container.innerHTML, /SL-TEST-001/);
+  // الوقت المتوقع لازم يفضل ظاهر في شاشة النجاح.
+  assert.match(container.innerHTML, /الوقت المتوقع لاستلام الأوردر: (<span[^>]*>)?من 60 إلى 70 دقيقة/);
 
   // الأوردر المعلّق لازم يتمسح عشان ما يتبعتش تاني.
   assert.equal(storage.has('smashlab_pending_order_v1'), false);

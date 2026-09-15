@@ -219,6 +219,7 @@
       '<p style="font-size:16px;font-weight:800;margin-bottom:6px">الإجمالي: ' + escapeHtml(options.total) + ' جنيه — الدفع كاش عند الاستلام</p>' +
       '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا ' + escapeHtml(options.name) +
       '! أوردرك اتسجل وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على ' + escapeHtml(options.area) + '.</p>' +
+      '<p style="display:inline-block;margin-top:14px;padding:9px 16px;border-radius:12px;background:rgba(127,127,127,.12);font-size:15px;font-weight:900;line-height:1.7">⏱ الوقت المتوقع لاستلام الأوردر: <span style="white-space:nowrap">من 60 إلى 70 دقيقة</span></p>' +
       '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">تمام 👌</button>' +
       '</div>';
   }
