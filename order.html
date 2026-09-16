@@ -199,13 +199,16 @@ fbq('track','PageView');
 <script src="order-client.js"></script>
 <script>
 var SANDWICH_UPGRADES = [{name:'دابل',price:140},{name:'تريبل',price:190}];
+var PREMIUM_UPGRADES  = [{name:'دابل',price:180},{name:'تريبل',price:230}];
 var MENU = [
   {cat:'سماش برجر ساندويتش', icon:'🍔', items:[
     {id:'classic',   name:'كلاسيك سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/burger.jpg'},
     {id:'bbq',       name:'باربكيو سماش',      desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/bbq.jpg'},
     {id:'mushroom',  name:'مشروم سماش',        desc:'قطعة برجر - مشروم - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/mushroom.jpg'},
     {id:'bacon',     name:'بيف بيكون سماش',    desc:'قطعة برجر - بيف بيكون - جبنة - خس - خيار مخلل - طماطم - مايونيز', price:90, sizes:SANDWICH_UPGRADES, img:'img/bacon.jpg'},
-    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/sweetchili.jpg'}
+    {id:'sweetchili',name:'سويت شيلي سماش',    desc:'قطعة برجر - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, sizes:SANDWICH_UPGRADES, img:'img/sweetchili.jpg'},
+    {id:'truffle',   name:'ترافل مشروم سماش',  desc:'قطعة برجر - جبنة شيدر - صوص مشروم ترافل - خس - خيار مخلل - طماطم - مايونيز', price:130, badge:'NEW', sizes:PREMIUM_UPGRADES, img:'img/truffle.jpg'},
+    {id:'sriracha',  name:'سيراتشا مايو سماش', desc:'قطعة برجر - جبنة شيدر - صوص سيراتشا مايو - خس - خيار مخلل - طماطم - مايونيز', price:130, badge:'NEW', sizes:PREMIUM_UPGRADES, img:'img/sriracha.jpg'}
   ]},
   {cat:'ستيك', icon:'🥩', items:[
     {id:'philly', name:'فيلي تشيز ستيك', desc:'شرائح لحم بقري متبلة متشوحة على الجريل مع البصل المكرمل وصوص المشروم مغطاة بالجبنة السايحة جوه عيش البريوش', price:150, badge:'NEW', img:'img/philly.jpg'}
@@ -215,7 +218,9 @@ var MENU = [
     {id:'bbqchicken',name:'باربكيو تشيكن',     desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - باربكيو صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_bbq.jpg'},
     {id:'ranch',     name:'رانش تشيكن',        desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - رانش صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_ranch.jpg'},
     {id:'scchicken', name:'سويت شيلي تشيكن',   desc:'صدر دجاج كرسبي - جبنة - خس - خيار مخلل - طماطم - مايونيز - سويت شيلي صوص', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_sweetchili.jpg'},
-    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_turkey.jpg'}
+    {id:'turkey',    name:'تركي تشيكن',        desc:'صدر دجاج كرسبي - تركي - جبنة - خس - خيار مخلل - طماطم - صوص كوكتيل', price:90, opts:['أوريجنال','حار'], sizes:SANDWICH_UPGRADES, img:'img/chicken_turkey.jpg'},
+    {id:'ctruffle',  name:'ترافل مشروم تشيكن', desc:'صدر دجاج كرسبي - جبنة شيدر - صوص مشروم ترافل - خس - خيار مخلل - طماطم - مايونيز', price:130, badge:'NEW', opts:['أوريجنال','حار'], sizes:PREMIUM_UPGRADES, img:'img/chicken_truffle.jpg'},
+    {id:'csriracha', name:'سيراتشا مايو تشيكن',desc:'صدر دجاج كرسبي - جبنة شيدر - صوص سيراتشا مايو - خس - خيار مخلل - طماطم - مايونيز', price:130, badge:'NEW', sizes:PREMIUM_UPGRADES, img:'img/chicken_sriracha.jpg'}
   ]},
   {cat:'ريزو', icon:'🍚', items:[
     {id:'rizo', name:'ريزو', desc:'أرز بسمتي أصفر متبل مع قطع فراخ كريسبي مقرمشة، مع صوص كريمي غني ولمسة من الصوص الخاص.', price:90, opts:['أوريجنال','حار'], opts2:['رانش','باربكيو','جبنة','سويت شيلي'], badge:'NEW', img:'img/rizo.jpg'}
@@ -227,6 +232,9 @@ var MENU = [
   ]},
   {cat:'الإضافات', icon:'➕', items:[
     {id:'xsauce', name:'إضافة صوص',   desc:'', price:20, opts:['كاتشب','مايونيز','تيكساس','باربكيو','رانش','شيدر']}
+  ]},
+  {cat:'ديزرت', icon:'🍫', items:[
+    {id:'nutella', name:'نوتيلا كرانش', desc:'عيش بريوش - نوتيلا - شرايح موز - صوص كراميل - بسكويت مقرمش', price:150, badge:'NEW', img:'img/nutella_crunch.jpg'}
   ]},
   {cat:'مشروبات', icon:'🥤', items:[
     {id:'water', name:'مياه',         desc:'', price:10, img:'img/water.jpg', eager:true},

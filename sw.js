@@ -1,5 +1,5 @@
 /* SmashLab app service worker — يخدم ملفات التطبيق بس، باقي صفحات الموقع (لاندينج الإعلانات) مش بيلمسها */
-var CACHE = 'smashlab-app-v13';
+var CACHE = 'smashlab-app-v14';
 var ASSETS = [
   'app.html',
   'order-client.js',
@@ -19,6 +19,11 @@ var ASSETS = [
   'img/chicken_turkey.jpg',
   'img/philly.jpg',
   'img/rizo.jpg',
+  'img/truffle.jpg',
+  'img/sriracha.jpg',
+  'img/chicken_truffle.jpg',
+  'img/chicken_sriracha.jpg',
+  'img/nutella_crunch.jpg',
   'img/strips.jpg',
   'img/fries.jpg',
   'img/cheese-fries.jpg',
