@@ -121,6 +121,22 @@
   .cartbar{background:rgba(255,255,255,.94);border-top:1px solid var(--line);box-shadow:0 -8px 25px rgba(15,15,15,.08);padding:12px 20px calc(12px + env(safe-area-inset-bottom))}.cartbar-in{max-width:1200px}.cartinfo .n{color:#666;opacity:1}.cartinfo .t{color:var(--ink);font-size:24px}.gobtn{background:var(--red);padding:13px 26px;border-radius:7px;box-shadow:0 9px 20px rgba(236,28,36,.22)}
   .sheet-bg{background:rgba(20,20,20,.38);backdrop-filter:blur(4px)}.sheet{background:#fff;border:1px solid #ddd;border-bottom:0;border-radius:18px 18px 0 0}.sheet-in{max-width:760px;color:var(--ink)}.sheet h3{font:30px Anton,sans-serif}.sheet h3 .x{color:#222}.cline{border-color:#ececea}.cline .nm{color:#222}.cline .nm span{color:var(--red)}.cline .pr,.totline .v{color:var(--red)}.dnote{color:#777;opacity:1}.flbl{color:#3a3633}.fld{background:#fafaf9;border-color:#ddd;color:#171717;border-radius:8px}.fld::placeholder{color:#a4a09c}.gpsbtn{border-color:var(--red);color:var(--red);border-radius:8px}.formerr{background:#fff0f0;color:#a81016}.wabtn{border-radius:8px;box-shadow:0 8px 20px rgba(37,211,102,.22)}
   @media(max-width:760px){header{display:block;padding:19px 18px 14px}.deal{font-size:23px;margin-top:17px}.wrap{padding:0 14px}main.wrap{padding-top:30px}.cat{grid-template-columns:1fr;gap:12px;margin-bottom:34px}.cat-head h2{font-size:26px}.thumb{height:150px}.item-body{padding:14px}.item-desc{min-height:auto}.cartbar-in{gap:8px}.gobtn{font-size:14px;padding:12px 14px}.cartinfo .t{font-size:20px}}
+  /* upsell — كمّل أوردرك */
+  .upsell{margin:14px 0 4px;padding:14px;background:#fff7f6;border:1px solid #ffd9d6;border-radius:14px}
+  .upsell-h{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+  .upsell-h b{font-size:16px;font-weight:900;color:#171717}
+  .upsell-h span{font-size:12px;color:#8a817b;font-weight:700}
+  .upsell-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .upsell-row::-webkit-scrollbar{display:none}
+  .ucard{flex:0 0 132px;scroll-snap-align:start;background:#fff;border:1px solid #ececea;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .ucard img{width:100%;height:84px;object-fit:cover;background:#f0f0ee;display:block}
+  .ucard .ub{padding:8px 9px 9px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .ucard .un{font-size:12.5px;font-weight:800;line-height:1.3;color:#222;min-height:32px}
+  .ucard .up{font-family:'Anton',sans-serif;font-size:17px;color:#ec1c24;line-height:1}
+  .ucard .ua{margin-top:auto;background:#ec1c24;color:#fff;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-weight:900;font-size:13px;padding:7px 0;cursor:pointer}
+  .ucard .ua:active{transform:scale(.97)}
+  .ucard .tag{position:absolute;margin:6px;background:#ec1c24;color:#fff;font:10px Anton,sans-serif;letter-spacing:.5px;padding:2px 6px;border-radius:4px}
+  .ucard .iw{position:relative}
 </style>
 <!-- TikTok Pixel -->
 <script>
@@ -174,6 +190,7 @@ fbq('track','PageView');
   <div class="sheet-in">
     <h3>أوردرك 🍔 <button class="x" id="closeCart">✕</button></h3>
     <div id="cartLines"></div>
+    <div id="upsell"></div>
     <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
     <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
     <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
@@ -387,7 +404,35 @@ function renderSheet(){
   document.getElementById('sheetTotal').textContent=fmt(t);
   document.getElementById('sheetDelivery').textContent = fee===null ? 'اختار منطقتك' : fmt(fee);
   document.getElementById('sheetGrand').textContent = fee===null ? fmt(t)+' + توصيل' : fmt(t+fee);
+  renderUpsell();
 }
+
+/* ---- كمّل أوردرك: ترشيحات قبل التأكيد ----
+   UPSELL = الأصناف اللي عايزين نزوّد مبيعاتها، بالترتيب. بيظهر أول UPSELL_MAX منهم مش موجودين في السلة. */
+var UPSELL = ['nutella','cheesefries','soda','fries','water'];
+var UPSELL_MAX = 3;
+function inCart(id){ return Object.keys(cart).some(function(k){ return k.split('|')[0]===id; }); }
+function renderUpsell(){
+  var box=document.getElementById('upsell');
+  var picks=UPSELL.filter(function(id){ return items[id] && !inCart(id); }).slice(0,UPSELL_MAX);
+  if(!picks.length || !totals().n){ box.innerHTML=''; return; }
+  var html='<div class="upsell"><div class="upsell-h"><b>🔥 كمّل أوردرك</b><span>ضغطة واحدة ويتضاف</span></div><div class="upsell-row">';
+  picks.forEach(function(id){
+    var it=items[id];
+    html+='<div class="ucard"><div class="iw">'+(it.badge?'<span class="tag">'+it.badge+'</span>':'')+
+          (it.img?'<img src="'+it.img+'" alt="'+it.name+'" loading="lazy">':'')+'</div>'+
+          '<div class="ub"><div class="un">'+it.name+'</div><div class="up">'+fmt(selectedPrice(id))+'</div>'+
+          '<button class="ua" type="button" data-up="'+id+'">+ ضيف</button></div></div>';
+  });
+  box.innerHTML=html+'</div></div>';
+}
+function addUpsell(id){
+  change(id,1);
+  try{ fbq('trackCustom','UpsellAdd',{content_ids:[id], content_name:items[id].name, value:selectedPrice(id), currency:'EGP'}); }catch(e){}
+}
+document.getElementById('upsell').addEventListener('click', function(e){
+  var b=e.target.closest('[data-up]'); if(b) addUpsell(b.getAttribute('data-up'));
+});
 
 /* ---- delivery zones (اسم المنطقة => سعر التوصيل) ---- */
 var ZONES=[
