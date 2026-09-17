@@ -393,8 +393,8 @@ function renderSheet(){
 
 /* ---- كمّل أوردرك: ترشيحات قبل التأكيد ----
    UPSELL = الأصناف اللي عايزين نزوّد مبيعاتها، بالترتيب. بيظهر أول UPSELL_MAX منهم مش موجودين في السلة. */
-var UPSELL = ['nutella','cheesefries','soda','fries','water'];
-var UPSELL_MAX = 3;
+var UPSELL = ['sriracha','csriracha','nutella','cheesefries','soda','fries','water'];
+var UPSELL_MAX = 4;
 function inCart(id){ return Object.keys(cart).some(function(k){ return k.split('|')[0]===id; }); }
 function renderUpsell(){
   var box=document.getElementById('upsell');
