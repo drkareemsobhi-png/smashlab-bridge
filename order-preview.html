@@ -134,6 +134,14 @@
   .ucard .ua:active{transform:scale(.97)}
   .ucard .tag{position:absolute;margin:6px;background:#ec1c24;color:#fff;font:10px Anton,sans-serif;letter-spacing:.5px;padding:2px 6px;border-radius:4px}
   .ucard .iw{position:relative}
+  /* كود الخصم */
+  .coupon{display:flex;gap:8px;margin:14px 0 4px}
+  .coupon .cpn-in{flex:1;margin:0;text-transform:uppercase;letter-spacing:1px;font-family:'Cairo',sans-serif}
+  .coupon .cpn-btn{flex:0 0 auto;background:#ec1c24;color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-weight:900;font-size:14px;padding:0 18px;cursor:pointer}
+  .cpn-msg{font-size:12.5px;font-weight:800;min-height:16px;margin:4px 2px 0}
+  .cpn-msg.ok{color:#1a9e4b}
+  .cpn-msg.bad{color:#ec1c24}
+  .cpn-msg button{background:none;border:none;color:#8a817b;font-family:inherit;font-weight:800;font-size:12px;text-decoration:underline;cursor:pointer;margin-right:6px}
 </style>
 <!-- TikTok Pixel -->
 <script>
@@ -177,7 +185,10 @@
     <h3>أوردرك 🍔 <button class="x" id="closeCart">✕</button></h3>
     <div id="cartLines"></div>
     <div id="upsell"></div>
+    <div class="coupon"><input class="fld cpn-in" id="cpnIn" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" dir="ltr" placeholder="عندك كود خصم؟"><button class="cpn-btn" id="cpnBtn" type="button">طبّق</button></div>
+    <div class="cpn-msg" id="cpnMsg"></div>
     <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
+    <div class="totline" id="cpnLine" style="display:none;padding:4px 0 0;font-size:15px"><span id="cpnLbl">الخصم</span><span class="v" id="sheetDisc" style="font-size:20px;color:#1a9e4b">0 ج</span></div>
     <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
     <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
     <div class="dnote">الدفع كاش عند الاستلام.</div>
@@ -387,7 +398,10 @@ function renderSheet(){
   var t=totals().t, fee=deliveryFee();
   document.getElementById('sheetTotal').textContent=fmt(t);
   document.getElementById('sheetDelivery').textContent = fee===null ? 'اختار منطقتك' : fmt(fee);
-  document.getElementById('sheetGrand').textContent = fee===null ? fmt(t)+' + توصيل' : fmt(t+fee);
+  var disc=discountOf(t), net=t-disc;
+  document.getElementById('cpnLine').style.display = disc ? '' : 'none';
+  if(disc){ document.getElementById('cpnLbl').textContent='خصم '+coupon.code+' ('+Math.round(coupon.rate*100)+'%)'; document.getElementById('sheetDisc').textContent='− '+fmt(disc); }
+  document.getElementById('sheetGrand').textContent = fee===null ? fmt(net)+' + توصيل' : fmt(net+fee);
   renderUpsell();
 }
 
@@ -416,6 +430,30 @@ function addUpsell(id){
 }
 document.getElementById('upsell').addEventListener('click', function(e){
   var b=e.target.closest('[data-up]'); if(b) addUpsell(b.getAttribute('data-up'));
+});
+
+/* ---- كود الخصم ----
+   COUPONS = الكود ← نسبة الخصم. بيتطبق على الأوردر قبل التوصيل، ومفتوح المدة والعدد. */
+var COUPONS = {'BEKO10': 0.10};
+var coupon = null;
+function discountOf(t){ return coupon ? Math.round(t*coupon.rate) : 0; }
+function applyCoupon(){
+  var inp=document.getElementById('cpnIn'), msg=document.getElementById('cpnMsg');
+  var code=inp.value.replace(/\s+/g,'').toUpperCase();
+  if(!code){ coupon=null; msg.className='cpn-msg'; msg.textContent=''; renderSheet(); return; }
+  if(COUPONS.hasOwnProperty(code)){
+    coupon={code:code, rate:COUPONS[code]}; inp.value=code;
+    msg.className='cpn-msg ok'; msg.innerHTML='✅ الكود اتطبق — خصم '+Math.round(coupon.rate*100)+'% على الأوردر<button type="button" id="cpnRm">شيل الكود</button>';
+  } else {
+    coupon=null; msg.className='cpn-msg bad'; msg.textContent='الكود ده مش شغال — اتأكد منه.';
+  }
+  renderSheet();
+}
+document.getElementById('cpnBtn').addEventListener('click', applyCoupon);
+document.getElementById('cpnIn').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); applyCoupon(); } });
+document.getElementById('cpnMsg').addEventListener('click', function(e){
+  if(e.target.id!=='cpnRm') return;
+  coupon=null; document.getElementById('cpnIn').value=''; this.className='cpn-msg'; this.textContent=''; renderSheet();
 });
 
 /* ---- delivery zones (اسم المنطقة => سعر التوصيل) ---- */
@@ -526,13 +564,15 @@ document.getElementById('sendOrder').addEventListener('click', function(){
   if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01).'); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(addr.length<8){ addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   var fee=FEES[area];
+  var disc=discountOf(x.t), net=x.t-disc;
   var notes=document.getElementById('notes').value.trim();
-  try{ ttq.track('Contact',{content_id:src, content_name:'order_confirm', value:x.t+fee, currency:'EGP'}); }catch(err){}
+  if(disc) notes='🎟 كود '+coupon.code+' — خصم '+Math.round(coupon.rate*100)+'%: الأوردر قبل الخصم '+x.t+'ج − '+disc+'ج = '+net+'ج'+(notes?'\n'+notes:'');
+  try{ ttq.track('Contact',{content_id:src, content_name:'order_confirm', value:net+fee, currency:'EGP'}); }catch(err){}
   // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك) — رقم الموبايل جوه العنوان عشان يوصل للمطبخ فورًا
   var payload={
     client_order_id:SmashLabOrders.createClientOrderId(),
     items: Object.keys(cart).map(function(k){var l=cart[k];return {name:l.name,opt:l.opt,qty:l.qty,price:l.price};}),
-    subtotal:x.t, delivery:fee, total:x.t+fee, area:area,
+    subtotal:net, delivery:fee, total:net+fee, area:area,
     customer_name:cname,
     address:'👤 '+cname+' — 📞 '+phone+' — '+addr, phone:phone,
     gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
@@ -544,10 +584,10 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     payload:payload,
     container:document.querySelector('.sheet-in'),
     name:cname,
-    total:x.t+fee,
+    total:net+fee,
     area:area,
     onConfirmed:function(){
-      try{ ttq.track('PlaceAnOrder',{value:x.t+fee, currency:'EGP', quantity:x.n}); }catch(err){}
+      try{ ttq.track('PlaceAnOrder',{value:net+fee, currency:'EGP', quantity:x.n}); }catch(err){}
     }
   });
 });
