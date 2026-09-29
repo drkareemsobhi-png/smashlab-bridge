@@ -1,7 +1,8 @@
 /* SmashLab app service worker — يخدم ملفات التطبيق بس، باقي صفحات الموقع (لاندينج الإعلانات) مش بيلمسها */
-var CACHE = 'smashlab-app-v14';
+var CACHE = 'smashlab-app-v15';
 var ASSETS = [
   'app.html',
+  'i18n.js',
   'order-client.js',
   'manifest.webmanifest',
   'app-icon-192.png',
@@ -51,7 +52,7 @@ self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   var url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
-  var inScope = /\/(app\.html|order-client\.js|manifest\.webmanifest|app-icon-\d+\.png|img\/[^\/]+)$/.test(url.pathname);
+  var inScope = /\/(app\.html|i18n\.js|order-client\.js|manifest\.webmanifest|app-icon-\d+\.png|img\/[^\/]+)$/.test(url.pathname);
   if (!inScope) return;
   e.respondWith(
     fetch(e.request).then(function (res) {

@@ -8,6 +8,10 @@
   var RECEIPT_TTL_MS = 45 * 60 * 1000;
   var CHECK_DELAYS = [400, 900, 1600, 2600, 4000];
 
+  // نصوص الواجهة حسب اللغة (i18n.js) — من غيره بيفضل عربي
+  function isEn() { return !!(global.SLi18n && global.SLi18n.isEn()); }
+  function L(ar, en) { return isEn() ? en : ar; }
+
   function createClientOrderId() {
     if (global.crypto && typeof global.crypto.randomUUID === 'function') {
       return global.crypto.randomUUID();
@@ -81,6 +85,7 @@
 
   function sinceLabel(at) {
     var mins = Math.floor((Date.now() - at) / 60000);
+    if (isEn()) return mins < 1 ? 'just now' : (mins === 1 ? '1 minute ago' : mins + ' minutes ago');
     if (mins < 1) return 'من شوية';
     if (mins === 1) return 'من دقيقة';
     if (mins === 2) return 'من دقيقتين';
@@ -98,19 +103,19 @@
     bar.id = 'slReceiptBanner';
     bar.setAttribute('style',
       'position:relative;background:#0f7a3d;color:#fff;font-family:Cairo,sans-serif;' +
-      'direction:rtl;text-align:center;padding:12px 44px 13px;line-height:1.75;' +
+      'direction:' + L('rtl', 'ltr') + ';text-align:center;padding:12px 44px 13px;line-height:1.75;' +
       'font-size:14px;font-weight:700;z-index:60');
     bar.innerHTML =
-      '<div style="font-size:15px;font-weight:900">✅ أوردرك اتسجل عندنا ' +
+      '<div style="font-size:15px;font-weight:900">' + L('✅ أوردرك اتسجل عندنا ', '✅ Your order was received ') +
       escapeHtml(sinceLabel(saved.at)) + '</div>' +
       (saved.order_id
-        ? '<div style="font-size:12.5px;font-weight:700;opacity:.92;margin-top:2px">رقم الأوردر: ' +
+        ? '<div style="font-size:12.5px;font-weight:700;opacity:.92;margin-top:2px">' + L('رقم الأوردر: ', 'Order no.: ') +
           escapeHtml(saved.order_id) + '</div>'
         : '') +
       '<div style="font-size:12.5px;font-weight:600;opacity:.92;margin-top:3px">' +
-      'بنجهّزه دلوقتي — مش محتاج تطلب تاني. ' +
-      'لو عايز أوردر إضافي كمّل عادي.</div>' +
-      '<button type="button" id="slReceiptClose" aria-label="إخفاء" ' +
+      L('بنجهّزه دلوقتي — مش محتاج تطلب تاني. لو عايز أوردر إضافي كمّل عادي.',
+        'We\'re preparing it now — no need to order again. Want something extra? Go ahead.') + '</div>' +
+      '<button type="button" id="slReceiptClose" aria-label="' + L('إخفاء', 'Hide') + '" ' +
       'style="position:absolute;top:8px;left:10px;background:transparent;border:0;color:#fff;' +
       'font-size:20px;line-height:1;font-weight:900;cursor:pointer;opacity:.85;padding:2px 6px">×</button>';
 
@@ -203,8 +208,8 @@
     container.innerHTML =
       '<div style="text-align:center;padding:34px 10px 20px">' +
       '<div style="font-size:52px;line-height:1">⏳</div>' +
-      '<h3 style="justify-content:center;margin:18px 0 8px">بنتأكد إن أوردرك وصل...</h3>' +
-      '<p style="font-size:14.5px;opacity:.75;line-height:1.9">استنى ثواني وماتقفلش الصفحة.</p>' +
+      '<h3 style="justify-content:center;margin:18px 0 8px">' + L('بنتأكد إن أوردرك وصل...', 'Confirming your order...') + '</h3>' +
+      '<p style="font-size:14.5px;opacity:.75;line-height:1.9">' + L('استنى ثواني وماتقفلش الصفحة.', 'Just a few seconds — please keep this page open.') + '</p>' +
       '</div>';
   }
 
@@ -214,13 +219,14 @@
     container.innerHTML =
       '<div style="text-align:center;padding:34px 10px 20px">' +
       '<div style="font-size:56px;line-height:1">✅</div>' +
-      '<h3 style="justify-content:center;margin:18px 0 8px">استلمنا أوردرك!</h3>' +
-      (orderId ? '<p style="font-size:13px;font-weight:900;margin-bottom:6px">رقم الأوردر: ' + escapeHtml(orderId) + '</p>' : '') +
-      '<p style="font-size:16px;font-weight:800;margin-bottom:6px">الإجمالي: ' + escapeHtml(options.total) + ' جنيه — الدفع كاش عند الاستلام</p>' +
-      '<p style="font-size:14.5px;opacity:.75;line-height:1.9">تمام يا ' + escapeHtml(options.name) +
-      '! أوردرك اتسجل وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على ' + escapeHtml(options.area) + '.</p>' +
-      '<p style="display:inline-block;margin-top:14px;padding:9px 16px;border-radius:12px;background:rgba(127,127,127,.12);font-size:15px;font-weight:900;line-height:1.7">⏱ الوقت المتوقع لاستلام الأوردر: <span style="white-space:nowrap">من 60 إلى 70 دقيقة</span></p>' +
-      '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">تمام 👌</button>' +
+      '<h3 style="justify-content:center;margin:18px 0 8px">' + L('استلمنا أوردرك!', 'We got your order!') + '</h3>' +
+      (orderId ? '<p style="font-size:13px;font-weight:900;margin-bottom:6px">' + L('رقم الأوردر: ', 'Order no.: ') + escapeHtml(orderId) + '</p>' : '') +
+      '<p style="font-size:16px;font-weight:800;margin-bottom:6px">' + L('الإجمالي: ' + escapeHtml(options.total) + ' جنيه — الدفع كاش عند الاستلام', 'Total: ' + escapeHtml(options.total) + ' EGP — cash on delivery') + '</p>' +
+      '<p style="font-size:14.5px;opacity:.75;line-height:1.9">' + L('تمام يا ' + escapeHtml(options.name) +
+      '! أوردرك اتسجل وجاري تأكيده وتجهيزه،<br>والدليفري يوصلك على ' + escapeHtml(options.area) + '.',
+      'Thanks, ' + escapeHtml(options.name) + '! Your order is being confirmed and prepared,<br>and the rider will deliver it to ' + escapeHtml(options.area) + '.') + '</p>' +
+      '<p style="display:inline-block;margin-top:14px;padding:9px 16px;border-radius:12px;background:rgba(127,127,127,.12);font-size:15px;font-weight:900;line-height:1.7">' + L('⏱ الوقت المتوقع لاستلام الأوردر: <span style="white-space:nowrap">من 60 إلى 70 دقيقة</span>', '⏱ Estimated delivery time: <span style="white-space:nowrap">60–70 minutes</span>') + '</p>' +
+      '<button class="wabtn" style="margin-top:22px" onclick="location.reload()">' + L('تمام 👌', 'Great 👌') + '</button>' +
       '</div>';
   }
 
@@ -228,9 +234,9 @@
     container.innerHTML =
       '<div style="text-align:center;padding:34px 10px 20px">' +
       '<div style="font-size:56px;line-height:1">⚠️</div>' +
-      '<h3 style="justify-content:center;margin:18px 0 8px">لسه مقدرناش نتأكد إن الأوردر وصل</h3>' +
-      '<p style="font-size:14.5px;opacity:.8;line-height:1.9">اضغط إعادة الإرسال. نفس الأوردر مش هيتكرر حتى لو اتبعت أكتر من مرة.</p>' +
-      '<button class="wabtn" id="retryOrderDelivery" style="margin-top:18px">إعادة الإرسال</button>' +
+      '<h3 style="justify-content:center;margin:18px 0 8px">' + L('لسه مقدرناش نتأكد إن الأوردر وصل', 'We couldn\'t confirm your order yet') + '</h3>' +
+      '<p style="font-size:14.5px;opacity:.8;line-height:1.9">' + L('اضغط إعادة الإرسال. نفس الأوردر مش هيتكرر حتى لو اتبعت أكتر من مرة.', 'Tap resend. The same order won\'t be duplicated even if it\'s sent more than once.') + '</p>' +
+      '<button class="wabtn" id="retryOrderDelivery" style="margin-top:18px">' + L('إعادة الإرسال', 'Resend') + '</button>' +
       '</div>';
     document.getElementById('retryOrderDelivery').addEventListener('click', retry);
   }

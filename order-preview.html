@@ -142,6 +142,14 @@
   .cpn-msg.ok{color:#1a9e4b}
   .cpn-msg.bad{color:#ec1c24}
   .cpn-msg button{background:none;border:none;color:#8a817b;font-family:inherit;font-weight:800;font-size:12px;text-decoration:underline;cursor:pointer;margin-right:6px}
+  /* تبديل اللغة */
+  header{position:relative}
+  .lang-toggle{position:absolute;top:12px;inset-inline-end:14px;z-index:5;background:#fff;color:#171717;border:1.5px solid #171717;border-radius:999px;font:900 13px 'Cairo',sans-serif;padding:3px 13px;line-height:1.6;cursor:pointer}
+  .lang-toggle:hover{background:#171717;color:#fff}
+  @media(min-width:761px){.brand-lockup ~ .lang-toggle{position:static;order:9;flex-shrink:0;margin-inline-start:18px}}
+  html[dir=ltr] header{text-align:left}
+  html[dir=ltr] .deal{direction:ltr}
+  html[dir=ltr] .cpn-msg button{margin-right:0;margin-left:6px}
 </style>
 <!-- TikTok Pixel -->
 <script>
@@ -161,55 +169,57 @@
 
 <header>
   <div class="brand-lockup"><a href="site-preview.html" style="color:#fff;text-decoration:none"><div class="logo">SMASH<b>LAB</b></div></a><div class="slogan">MORE SMASH. LESS CASH.</div></div>
-  <div class="deal">أي ساندوتش بـ 90 جنيه 🍔</div>
-  <div class="note">اختار طلبك وأكده أونلاين — هيوصل للمطبخ فورًا</div>
+  <button class="lang-toggle" type="button">EN</button>
+  <div class="deal" data-en="Any sandwich for 90 EGP 🍔">أي ساندوتش بـ 90 جنيه 🍔</div>
+  <div class="note" data-en="Pick your order and confirm it online — it goes straight to the kitchen">اختار طلبك وأكده أونلاين — هيوصل للمطبخ فورًا</div>
 </header>
 
-<div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.</div>
+<div id="closedBar" style="display:none;background:#E31E24;color:#fff;text-align:center;font-weight:900;font-size:14.5px;padding:12px 16px;line-height:1.7" data-en="The kitchen is closed right now 🍔 We take orders daily from 2:30 PM to 11:30 PM.">المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.</div>
 
 <main class="wrap" id="menu"></main>
 
 <div class="cartbar">
   <div class="cartbar-in">
     <div class="cartinfo">
-      <div class="n" id="cartCount">السلة فاضية</div>
+      <div class="n" id="cartCount" data-en="Your cart is empty">السلة فاضية</div>
       <div class="t" id="cartTotal">0 ج</div>
     </div>
-    <button class="gobtn" id="openCart" disabled>راجع الأوردر 🛒</button>
+    <button class="gobtn" id="openCart" disabled data-en="Review order 🛒">راجع الأوردر 🛒</button>
   </div>
 </div>
 
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet">
   <div class="sheet-in">
-    <h3>أوردرك 🍔 <button class="x" id="closeCart">✕</button></h3>
+    <h3><span data-en="Your order 🍔">أوردرك 🍔</span> <button class="x" id="closeCart">✕</button></h3>
     <div id="cartLines"></div>
     <div id="upsell"></div>
-    <div class="coupon"><input class="fld cpn-in" id="cpnIn" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" dir="ltr" placeholder="عندك كود خصم؟"><button class="cpn-btn" id="cpnBtn" type="button">طبّق</button></div>
+    <div class="coupon"><input class="fld cpn-in" id="cpnIn" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" dir="ltr" placeholder="عندك كود خصم؟" data-en-ph="Have a promo code?"><button class="cpn-btn" id="cpnBtn" type="button" data-en="Apply">طبّق</button></div>
     <div class="cpn-msg" id="cpnMsg"></div>
-    <div class="totline" style="padding:12px 0 0;font-size:15px"><span>الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
-    <div class="totline" id="cpnLine" style="display:none;padding:4px 0 0;font-size:15px"><span id="cpnLbl">الخصم</span><span class="v" id="sheetDisc" style="font-size:20px;color:#1a9e4b">0 ج</span></div>
-    <div class="totline" style="padding:4px 0 0;font-size:15px"><span>التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
-    <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span>الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
-    <div class="dnote">الدفع كاش عند الاستلام.</div>
-    <div class="flbl">الاسم <span class="req">*</span></div>
-    <input class="fld" id="cname" type="text" required minlength="2" maxlength="80" autocomplete="name" placeholder="اسمك">
-    <div class="flbl">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
+    <div class="totline" style="padding:12px 0 0;font-size:15px"><span data-en="Subtotal">الأوردر</span><span class="v" id="sheetTotal" style="font-size:20px">0 ج</span></div>
+    <div class="totline" id="cpnLine" style="display:none;padding:4px 0 0;font-size:15px"><span id="cpnLbl" data-en="Discount">الخصم</span><span class="v" id="sheetDisc" style="font-size:20px;color:#1a9e4b">0 ج</span></div>
+    <div class="totline" style="padding:4px 0 0;font-size:15px"><span data-en="Delivery">التوصيل</span><span class="v" id="sheetDelivery" style="font-size:20px;color:#fff;opacity:.85">اختار منطقتك</span></div>
+    <div class="totline" style="border-top:1px solid var(--line);margin-top:10px"><span data-en="Total">الإجمالي النهائي</span><span class="v" id="sheetGrand">0 ج</span></div>
+    <div class="dnote" data-en="Cash on delivery.">الدفع كاش عند الاستلام.</div>
+    <div class="flbl" data-en="Name <span class=&quot;req&quot;>*</span>">الاسم <span class="req">*</span></div>
+    <input class="fld" id="cname" type="text" required minlength="2" maxlength="80" autocomplete="name" placeholder="اسمك" data-en-ph="Your name">
+    <div class="flbl" data-en="Delivery area <span class=&quot;req&quot;>*</span> <span style=&quot;opacity:.6;font-weight:600&quot;>(delivery fee depends on your area)</span>">منطقة التوصيل <span class="req">*</span> <span style="opacity:.6;font-weight:600">(سعر التوصيل بيتحسب حسب منطقتك)</span></div>
     <select class="fld" id="area">
-      <option value="">اختار منطقتك…</option>
+      <option value="" data-en="Choose your area…">اختار منطقتك…</option>
     </select>
-    <div class="flbl">رقم الموبايل <span class="req">*</span></div>
+    <div class="flbl" data-en="Mobile number <span class=&quot;req&quot;>*</span>">رقم الموبايل <span class="req">*</span></div>
     <input class="fld" id="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right">
-    <div class="flbl">العنوان بالتفصيل <span class="req">*</span></div>
-    <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"></textarea>
-    <button class="gpsbtn" id="gpsBtn" type="button">📍 حدد لوكيشني الحالي (بيساعد الدليفري يوصلك أسرع)</button>
+    <div class="flbl" data-en="Full address <span class=&quot;req&quot;>*</span>">العنوان بالتفصيل <span class="req">*</span></div>
+    <textarea class="fld" id="addr" rows="2" placeholder="الشارع - رقم العمارة - الدور - الشقة - علامة مميزة" data-en-ph="Street - building no. - floor - apartment - landmark"></textarea>
+    <button class="gpsbtn" id="gpsBtn" type="button" data-en="📍 Use my current location (helps the rider reach you faster)">📍 حدد لوكيشني الحالي (بيساعد الدليفري يوصلك أسرع)</button>
     <div class="gpsstat" id="gpsStat"></div>
-    <textarea class="fld" id="notes" rows="2" placeholder="ملاحظات على الأوردر (اختياري)"></textarea>
+    <textarea class="fld" id="notes" rows="2" placeholder="ملاحظات على الأوردر (اختياري)" data-en-ph="Order notes (optional)"></textarea>
     <div class="formerr" id="formErr"></div>
     <button class="wabtn" id="sendOrder" type="button">أكد الأوردر ✅</button>
   </div>
 </div>
 
+<script src="i18n.js"></script>
 <script src="order-client.js"></script>
 <script>
 var SANDWICH_UPGRADES = [{name:'دابل',price:140},{name:'تريبل',price:190}];
@@ -274,7 +284,7 @@ function selectedPrice(id){
 function selectedOpt(id){ return [sel[id]||'',sel2[id]||'',sizeSel[id]||''].filter(Boolean).join(' · '); }
 function key(id){ return id+'|'+(sel[id]||'')+'|'+(sel2[id]||'')+'|'+(sizeSel[id]||''); }
 function qtyOf(id){ var l=cart[key(id)]; return l?l.qty:0; }
-function fmt(n){ return n + ' ج'; }
+function fmt(n){ return SLi18n.money(n); }
 
 function change(id, d){
   var k=key(id), it=items[id], price=selectedPrice(id);
@@ -291,7 +301,7 @@ function pickSize(id, o){ sizeSel[id]=sizeSel[id]===o?'سنجل':o; render(id); 
 function render(id){
   var it=items[id], q=qtyOf(id);
   var el=document.getElementById('q_'+id); if(el) el.textContent=q;
-  var priceEl=document.getElementById('price_'+id); if(priceEl) priceEl.innerHTML=selectedPrice(id)+' <small>جنيه</small>';
+  var priceEl=document.getElementById('price_'+id); if(priceEl) priceEl.innerHTML=selectedPrice(id)+' <small>'+SLi18n.L('جنيه','EGP')+'</small>';
   if(it.opts){
     var chips=document.querySelectorAll('[data-chip="'+id+'"]');
     chips.forEach(function(c){ c.classList.toggle('on', c.dataset.opt===sel[id]); });
@@ -308,9 +318,9 @@ function render(id){
   if(inc){
     var parts=[];
     Object.keys(cart).forEach(function(k){
-      if(k.split('|')[0]===id){ var l=cart[k]; parts.push((l.opt?l.opt+' ':'')+'×'+l.qty); }
+      if(k.split('|')[0]===id){ var l=cart[k]; parts.push((l.opt?SLi18n.trOpt(l.opt)+' ':'')+'×'+l.qty); }
     });
-    inc.textContent = parts.length ? 'في السلة: '+parts.join('، ') : '';
+    inc.textContent = parts.length ? SLi18n.L('في السلة: ','In cart: ')+parts.join(SLi18n.L('، ',', ')) : '';
   }
 }
 
@@ -321,7 +331,7 @@ function totals(){
 }
 function renderBar(){
   var x=totals();
-  document.getElementById('cartCount').textContent = x.n ? (x.n===1 ? 'صنف واحد في السلة' : (x.n+' أصناف في السلة')) : 'السلة فاضية';
+  document.getElementById('cartCount').textContent = x.n ? (x.n===1 ? SLi18n.L('صنف واحد في السلة','1 item in cart') : SLi18n.L(x.n+' أصناف في السلة',x.n+' items in cart')) : SLi18n.L('السلة فاضية','Your cart is empty');
   document.getElementById('cartTotal').textContent = fmt(x.t);
   document.getElementById('openCart').disabled = !x.n;
 }
@@ -329,26 +339,26 @@ function renderBar(){
 function buildMenu(){
   var html='';
   MENU.forEach(function(c){
-    html+='<section class="cat"><div class="cat-head"><span class="ico">'+c.icon+'</span><h2 class="anton">'+c.cat+'</h2>'+(c.sub?'<span class="sub">'+c.sub+'</span>':'')+'</div>';
+    html+='<section class="cat"><div class="cat-head"><span class="ico">'+c.icon+'</span><h2 class="anton">'+SLi18n.tr(c.cat)+'</h2>'+(c.sub?'<span class="sub">'+SLi18n.tr(c.sub)+'</span>':'')+'</div>';
     c.items.forEach(function(it){
       html+='<div class="item">';
-      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+it.name+'" loading="'+(it.eager?'eager':'lazy')+'">';
-      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+it.name+(it.badge?'<span class="badge">'+it.badge+'</span>':'')+'</div>'+
-            '<div class="item-price" id="price_'+it.id+'">'+it.price+' <small>جنيه</small></div></div>';
-      if(it.desc) html+='<div class="item-desc">'+it.desc+'</div>';
+      if(it.img) html+='<img class="thumb" src="'+it.img+'" alt="'+SLi18n.tr(it.name)+'" loading="'+(it.eager?'eager':'lazy')+'">';
+      html+='<div class="item-body"><div class="item-top"><div class="item-name">'+SLi18n.tr(it.name)+(it.badge?'<span class="badge">'+it.badge+'</span>':'')+'</div>'+
+            '<div class="item-price" id="price_'+it.id+'">'+it.price+' <small>'+SLi18n.L('جنيه','EGP')+'</small></div></div>';
+      if(it.desc) html+='<div class="item-desc">'+SLi18n.trDesc(it.desc)+'</div>';
       if(it.opts){
         html+='<div class="opts">';
-        it.opts.forEach(function(o){ html+='<button class="chip" data-chip="'+it.id+'" data-opt="'+o+'" onclick="pick(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
+        it.opts.forEach(function(o){ html+='<button class="chip" data-chip="'+it.id+'" data-opt="'+o+'" onclick="pick(\''+it.id+'\',\''+o+'\')">'+SLi18n.tr(o)+'</button>'; });
         html+='</div>';
       }
       if(it.opts2){
         html+='<div class="opts">';
-        it.opts2.forEach(function(o){ html+='<button class="chip" data-chip2="'+it.id+'" data-opt2="'+o+'" onclick="pick2(\''+it.id+'\',\''+o+'\')">'+o+'</button>'; });
+        it.opts2.forEach(function(o){ html+='<button class="chip" data-chip2="'+it.id+'" data-opt2="'+o+'" onclick="pick2(\''+it.id+'\',\''+o+'\')">'+SLi18n.tr(o)+'</button>'; });
         html+='</div>';
       }
       if(it.sizes){
-        html+='<div class="size-label">السنجل '+it.price+'ج — اختار لو عايزه أكبر:</div><div class="opts size-opts">';
-        it.sizes.forEach(function(s){ html+='<button class="chip" data-size-chip="'+it.id+'" data-size="'+s.name+'" onclick="pickSize(\''+it.id+'\',\''+s.name+'\')">'+s.name+' — '+s.price+'ج</button>'; });
+        html+='<div class="size-label">'+SLi18n.L('السنجل '+it.price+'ج — اختار لو عايزه أكبر:','Single '+it.price+' EGP — pick a size to go bigger:')+'</div><div class="opts size-opts">';
+        it.sizes.forEach(function(s){ html+='<button class="chip" data-size-chip="'+it.id+'" data-size="'+s.name+'" onclick="pickSize(\''+it.id+'\',\''+s.name+'\')">'+SLi18n.tr(s.name)+' — '+SLi18n.money(s.price)+'</button>'; });
         html+='</div>';
       }
       html+='<div class="row2"><div class="incart" id="in_'+it.id+'"></div>'+
@@ -383,11 +393,11 @@ function sheetChange(k, d){
 function renderSheet(){
   var box=document.getElementById('cartLines'), html='';
   var ks=Object.keys(cart);
-  if(!ks.length){ box.innerHTML='<div class="empty">السلة فاضية 🛒</div>'; }
+  if(!ks.length){ box.innerHTML='<div class="empty">'+SLi18n.L('السلة فاضية 🛒','Your cart is empty 🛒')+'</div>'; }
   else{
     ks.forEach(function(k){
       var l=cart[k];
-      html+='<div class="cline"><div class="nm">'+l.name+(l.opt?'<span>'+l.opt+'</span>':'')+'</div>'+
+      html+='<div class="cline"><div class="nm">'+SLi18n.tr(l.name)+(l.opt?'<span>'+SLi18n.trOpt(l.opt)+'</span>':'')+'</div>'+
             '<div class="stepper"><button onclick="sheetChange(\''+k+'\',-1)">−</button>'+
             '<span class="q">'+l.qty+'</span>'+
             '<button class="plus" onclick="sheetChange(\''+k+'\',1)">+</button></div>'+
@@ -397,11 +407,11 @@ function renderSheet(){
   }
   var t=totals().t, fee=deliveryFee();
   document.getElementById('sheetTotal').textContent=fmt(t);
-  document.getElementById('sheetDelivery').textContent = fee===null ? 'اختار منطقتك' : fmt(fee);
+  document.getElementById('sheetDelivery').textContent = fee===null ? SLi18n.L('اختار منطقتك','Choose your area') : fmt(fee);
   var disc=discountOf(t), net=t-disc;
   document.getElementById('cpnLine').style.display = disc ? '' : 'none';
-  if(disc){ document.getElementById('cpnLbl').textContent='خصم '+coupon.code+' ('+Math.round(coupon.rate*100)+'%)'; document.getElementById('sheetDisc').textContent='− '+fmt(disc); }
-  document.getElementById('sheetGrand').textContent = fee===null ? fmt(net)+' + توصيل' : fmt(net+fee);
+  if(disc){ document.getElementById('cpnLbl').textContent=SLi18n.L('خصم ','Discount ')+coupon.code+' ('+Math.round(coupon.rate*100)+'%)'; document.getElementById('sheetDisc').textContent='− '+fmt(disc); }
+  document.getElementById('sheetGrand').textContent = fee===null ? fmt(net)+SLi18n.L(' + توصيل',' + delivery') : fmt(net+fee);
   renderUpsell();
 }
 
@@ -414,13 +424,13 @@ function renderUpsell(){
   var box=document.getElementById('upsell');
   var picks=UPSELL.filter(function(id){ return items[id] && !inCart(id); }).slice(0,UPSELL_MAX);
   if(!picks.length || !totals().n){ box.innerHTML=''; return; }
-  var html='<div class="upsell"><div class="upsell-h"><b>🔥 كمّل أوردرك</b><span>ضغطة واحدة ويتضاف</span></div><div class="upsell-row">';
+  var html='<div class="upsell"><div class="upsell-h"><b>'+SLi18n.L('🔥 كمّل أوردرك','🔥 Complete your order')+'</b><span>'+SLi18n.L('ضغطة واحدة ويتضاف','One tap to add')+'</span></div><div class="upsell-row">';
   picks.forEach(function(id){
     var it=items[id];
     html+='<div class="ucard"><div class="iw">'+(it.badge?'<span class="tag">'+it.badge+'</span>':'')+
-          (it.img?'<img src="'+it.img+'" alt="'+it.name+'" loading="lazy">':'')+'</div>'+
-          '<div class="ub"><div class="un">'+it.name+'</div><div class="up">'+fmt(selectedPrice(id))+'</div>'+
-          '<button class="ua" type="button" data-up="'+id+'">+ ضيف</button></div></div>';
+          (it.img?'<img src="'+it.img+'" alt="'+SLi18n.tr(it.name)+'" loading="lazy">':'')+'</div>'+
+          '<div class="ub"><div class="un">'+SLi18n.tr(it.name)+'</div><div class="up">'+fmt(selectedPrice(id))+'</div>'+
+          '<button class="ua" type="button" data-up="'+id+'">'+SLi18n.L('+ ضيف','+ Add')+'</button></div></div>';
   });
   box.innerHTML=html+'</div></div>';
 }
@@ -443,9 +453,9 @@ function applyCoupon(){
   if(!code){ coupon=null; msg.className='cpn-msg'; msg.textContent=''; renderSheet(); return; }
   if(COUPONS.hasOwnProperty(code)){
     coupon={code:code, rate:COUPONS[code]}; inp.value=code;
-    msg.className='cpn-msg ok'; msg.innerHTML='✅ الكود اتطبق — خصم '+Math.round(coupon.rate*100)+'% على الأوردر<button type="button" id="cpnRm">شيل الكود</button>';
+    msg.className='cpn-msg ok'; msg.innerHTML=SLi18n.L('✅ الكود اتطبق — خصم '+Math.round(coupon.rate*100)+'% على الأوردر','✅ Code applied — '+Math.round(coupon.rate*100)+'% off your order')+'<button type="button" id="cpnRm">'+SLi18n.L('شيل الكود','Remove code')+'</button>';
   } else {
-    coupon=null; msg.className='cpn-msg bad'; msg.textContent='الكود ده مش شغال — اتأكد منه.';
+    coupon=null; msg.className='cpn-msg bad'; msg.textContent=SLi18n.L('الكود ده مش شغال — اتأكد منه.','This code isn\'t valid — please check it.');
   }
   renderSheet();
 }
@@ -478,12 +488,14 @@ var ZONES=[
   ['التجمع الاول',100], ['التجمع الخامس',100], ['التجمع الثالث',100], ['الرحاب',100]
 ];
 var FEES={};
+function zoneLabel(a){ return SLi18n.L(a+' — توصيل '+FEES[a]+'ج', SLi18n.tr(a)+' — delivery '+FEES[a]+' EGP'); }
+function relabelZones(){ var s=document.getElementById('area'); if(!s) return; for(var i=0;i<s.options.length;i++){ var o=s.options[i]; if(o.value) o.textContent=zoneLabel(o.value); } }
 (function(){
   var sel=document.getElementById('area');
   ZONES.forEach(function(z){
     FEES[z[0]]=z[1];
     var o=document.createElement('option');
-    o.value=z[0]; o.textContent=z[0]+' — توصيل '+z[1]+'ج';
+    o.value=z[0]; o.textContent=zoneLabel(z[0]);
     sel.appendChild(o);
   });
 })();
@@ -494,21 +506,21 @@ var BOUNDS=[29.95,30.17,31.23,31.58]; // lat1,lat2,lng1,lng2
 var gps=null; // {lat,lng} داخل النطاق — أو {outside:true}
 var gpsStat=document.getElementById('gpsStat');
 document.getElementById('gpsBtn').addEventListener('click', function(){
-  if(!navigator.geolocation){ gpsStat.className='gpsstat bad'; gpsStat.textContent='المتصفح مش بيدعم تحديد الموقع — اكتب عنوانك بالتفصيل.'; return; }
-  gpsStat.className='gpsstat'; gpsStat.textContent='جاري تحديد موقعك…';
+  if(!navigator.geolocation){ gpsStat.className='gpsstat bad'; gpsStat.textContent=SLi18n.L('المتصفح مش بيدعم تحديد الموقع — اكتب عنوانك بالتفصيل.','Your browser can\'t share location — please type your full address.'); return; }
+  gpsStat.className='gpsstat'; gpsStat.textContent=SLi18n.L('جاري تحديد موقعك…','Finding your location…');
   navigator.geolocation.getCurrentPosition(function(p){
     var lat=p.coords.latitude, lng=p.coords.longitude;
     if(lat>=BOUNDS[0]&&lat<=BOUNDS[1]&&lng>=BOUNDS[2]&&lng<=BOUNDS[3]){
       gps={lat:lat,lng:lng};
-      gpsStat.className='gpsstat ok'; gpsStat.textContent='✅ تم تحديد موقعك — هيتبعت للدليفري مع الأوردر';
+      gpsStat.className='gpsstat ok'; gpsStat.textContent=SLi18n.L('✅ تم تحديد موقعك — هيتبعت للدليفري مع الأوردر','✅ Location set — it will be sent to the rider with your order');
       hideErr();
     }else{
       gps={outside:true};
-      gpsStat.className='gpsstat bad'; gpsStat.textContent='❌ موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة.';
+      gpsStat.className='gpsstat bad'; gpsStat.textContent=SLi18n.L('❌ موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة.','❌ Your current location is outside our delivery range — we deliver to the East Cairo areas in the list.');
     }
   }, function(){
     gps=null;
-    gpsStat.className='gpsstat bad'; gpsStat.textContent='مقدرناش نوصل لموقعك — تأكد إنك سامح بالإذن، أو اكتب عنوانك بالتفصيل.';
+    gpsStat.className='gpsstat bad'; gpsStat.textContent=SLi18n.L('مقدرناش نوصل لموقعك — تأكد إنك سامح بالإذن، أو اكتب عنوانك بالتفصيل.','We couldn\'t get your location — allow location access, or type your full address.');
   }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
 });
 var errBox=document.getElementById('formErr');
@@ -537,7 +549,7 @@ function hoursUI(){
   if(btn && !orderSent){
     btn.disabled = !open;
     btn.style.opacity = open ? '' : '.55';
-    btn.textContent = open ? 'أكد الأوردر ✅' : 'استقبال الأوردرات يبدأ الساعة 2:30 ظهرًا';
+    btn.textContent = open ? SLi18n.L('أكد الأوردر ✅','Confirm order ✅') : SLi18n.L('استقبال الأوردرات يبدأ الساعة 2:30 ظهرًا','Orders open daily at 2:30 PM');
   }
 }
 
@@ -548,7 +560,7 @@ document.getElementById('phone').addEventListener('input', function(){ this.clas
 document.getElementById('cname').addEventListener('input', function(){ this.classList.remove('err'); hideErr(); });
 document.getElementById('sendOrder').addEventListener('click', function(){
   if(orderSent) return;
-  if(!isOpenNow()){ hoursUI(); showErr('المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.'); return; }
+  if(!isOpenNow()){ hoursUI(); showErr(SLi18n.L('المطبخ مقفول دلوقتي 🍔 بنستقبل الأوردرات يوميًا من 2:30 الضهر لحد 11:30 بليل.','The kitchen is closed right now 🍔 We take orders daily from 2:30 PM to 11:30 PM.')); return; }
   var x=totals();
   if(!x.n) return;
   var areaEl=document.getElementById('area'), addrEl=document.getElementById('addr'), phoneEl=document.getElementById('phone'), cnameEl=document.getElementById('cname');
@@ -556,17 +568,18 @@ document.getElementById('sendOrder').addEventListener('click', function(){
   var cname=cnameEl.value.replace(/\s+/g,' ').trim();
   areaEl.classList.remove('err'); addrEl.classList.remove('err'); phoneEl.classList.remove('err'); cnameEl.classList.remove('err'); hideErr();
   if(gps&&gps.outside){
-    showErr('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏');
+    showErr(SLi18n.L('للأسف موقعك الحالي خارج نطاق التوصيل — التوصيل متاح في مناطق شرق القاهرة اللي في القايمة 🙏','Sorry, your current location is outside our delivery range — we deliver to the East Cairo areas in the list 🙏'));
     return;
   }
-  if(cname.length<2){ cnameEl.classList.add('err'); showErr('اكتب اسمك عشان نعرف الأوردر باسم مين.'); cnameEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  if(!area){ areaEl.classList.add('err'); showErr('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.'); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01).'); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  if(addr.length<8){ addrEl.classList.add('err'); showErr('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.'); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(cname.length<2){ cnameEl.classList.add('err'); showErr(SLi18n.L('اكتب اسمك عشان نعرف الأوردر باسم مين.','Please enter your name for the order.')); cnameEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!area){ areaEl.classList.add('err'); showErr(SLi18n.L('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.','Please choose your delivery area — we only deliver to the areas in the list.')); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr(SLi18n.L('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01).','Please enter a valid mobile number (11 digits starting with 01).')); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(addr.length<8){ addrEl.classList.add('err'); showErr(SLi18n.L('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.','Please enter your full address (street - building - floor - apartment) so the rider can find you.')); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   var fee=FEES[area];
   var disc=discountOf(x.t), net=x.t-disc;
   var notes=document.getElementById('notes').value.trim();
   if(disc) notes='🎟 كود '+coupon.code+' — خصم '+Math.round(coupon.rate*100)+'%: الأوردر قبل الخصم '+x.t+'ج − '+disc+'ج = '+net+'ج'+(notes?'\n'+notes:'');
+  if(SLi18n.isEn()) notes='🌐 العميل طلب من الموقع بالإنجليزي'+(notes?'\n'+notes:'');
   try{ ttq.track('Contact',{content_id:src, content_name:'order_confirm', value:net+fee, currency:'EGP'}); }catch(err){}
   // تسجيل الأوردر في الشيت + إشعار تيليجرام (ويب هوك) — رقم الموبايل جوه العنوان عشان يوصل للمطبخ فورًا
   var payload={
@@ -585,13 +598,14 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     container:document.querySelector('.sheet-in'),
     name:cname,
     total:net+fee,
-    area:area,
+    area:SLi18n.tr(area),
     onConfirmed:function(){
       try{ ttq.track('PlaceAnOrder',{value:net+fee, currency:'EGP', quantity:x.n}); }catch(err){}
     }
   });
 });
 
+window.onLangChange=function(){ buildMenu(); renderBar(); relabelZones(); if(!orderSent){ renderSheet(); hoursUI(); hideErr(); } };
 buildMenu(); renderBar(); hoursUI(); setInterval(hoursUI, 60000);
 </script>
 </body>
