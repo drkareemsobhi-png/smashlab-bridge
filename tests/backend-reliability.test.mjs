@@ -317,3 +317,146 @@ test('repeated Telegram decisions cannot change an already handled order', async
   assert.equal(harness.sheet.getCell(order.row, 13), first.status);
   assert.match(harness.sheet.getCell(order.row, 14), /Staff/);
 });
+
+// ---- التحقق من الأسعار على السيرفر ----
+
+function arabicPayload(overrides = {}) {
+  return Object.assign({
+    customer_name: 'Kareem Sobhi',
+    phone: '01000000000',
+    client_order_id: 'client_order_pricing_01',
+    items: [
+      { name: 'كلاسيك سماش', opt: 'سنجل', qty: 2, price: 90 },
+      { name: 'كلاسيك تشيكن', opt: 'حار · دابل', qty: 1, price: 140 },
+      { name: 'مشروب غازي', opt: '', qty: 1, price: 20 }
+    ],
+    subtotal: 340,
+    delivery: 60,
+    total: 400,
+    area: 'ميدان روكسي',
+    address: 'Test address',
+    notes: '',
+    src: 'test'
+  }, overrides);
+}
+
+function sentText(harness, index = 0) {
+  return JSON.parse(harness.fetchCalls[index].request.payload).text;
+}
+
+test('a correctly priced order passes the server price check untouched', async () => {
+  const harness = await createHarness();
+  const result = jsonResult(harness.context.handleOrder_(arabicPayload()));
+
+  assert.equal(result.ok, true);
+  assert.equal(result.price_check, 'OK');
+  assert.equal(harness.sheet.getCell(2, 4), 340);
+  assert.equal(harness.sheet.getCell(2, 5), 60);
+  assert.equal(harness.sheet.getCell(2, 6), 400);
+  assert.equal(harness.sheet.getCell(2, 10), '');
+  assert.doesNotMatch(sentText(harness), /⚠️/);
+  assert.match(sentText(harness), /الإجمالي النهائي: 400 جنيه/);
+});
+
+test('tampered prices are recalculated from the menu and flagged, never rejected', async () => {
+  const harness = await createHarness();
+  const tampered = arabicPayload({
+    items: [{ name: 'ترافل مشروم سماش', opt: 'تريبل', qty: 1, price: 1 }],
+    subtotal: 1,
+    delivery: 0,
+    total: 1,
+    area: 'التجمع الخامس',
+    notes: 'من غير بصل'
+  });
+  const result = jsonResult(harness.context.handleOrder_(tampered));
+
+  assert.equal(result.ok, true);
+  assert.equal(result.price_check, 'CORRECTED');
+  assert.equal(harness.sheet.getCell(2, 4), 230);
+  assert.equal(harness.sheet.getCell(2, 5), 130);
+  assert.equal(harness.sheet.getCell(2, 6), 360);
+  assert.match(harness.sheet.getCell(2, 10), /^⚠️ تنبيه أسعار/);
+  assert.match(harness.sheet.getCell(2, 10), /من غير بصل$/);
+  const text = sentText(harness);
+  assert.match(text, /^🍔 أوردر جديد — SmashLab\n🧾 رقم الأوردر: [^\n]+\n\n⚠️ تنبيه أسعار/);
+  assert.match(text, /الإجمالي: الموقع 1ج والصحيح 360ج/);
+  assert.match(text, /ترافل مشروم سماش \(تريبل\) — 230ج/);
+  assert.match(text, /الإجمالي النهائي: 360 جنيه/);
+});
+
+test('the BEKO10 discount from the site is accepted by the server check', async () => {
+  const harness = await createHarness();
+  const result = jsonResult(harness.context.handleOrder_(arabicPayload({
+    subtotal: 306,
+    total: 366,
+    notes: '🎟 كود BEKO10 — خصم 10%: الأوردر قبل الخصم 340ج − 34ج = 306ج'
+  })));
+
+  assert.equal(result.price_check, 'OK');
+  assert.equal(harness.sheet.getCell(2, 6), 366);
+});
+
+test('unknown items, areas and bad quantities keep the order but mark it unverified', async () => {
+  const harness = await createHarness();
+  const result = jsonResult(harness.context.handleOrder_(arabicPayload({
+    items: [
+      { name: 'صنف مش موجود', opt: '', qty: 1, price: 5 },
+      { name: 'كلاسيك سماش', opt: 'سنجل', qty: -3, price: 90 }
+    ],
+    subtotal: 5,
+    delivery: 10,
+    total: 15,
+    area: 'منطقة وهمية'
+  })));
+
+  assert.equal(result.ok, true);
+  assert.equal(result.price_check, 'UNVERIFIED');
+  assert.equal(harness.sheet.getCell(2, 6), 15);
+  const text = sentText(harness);
+  assert.match(text, /مقدرناش نتحقق من الأسعار/);
+  assert.match(text, /صنف مش في قايمة الأسعار: صنف مش موجود/);
+  assert.match(text, /كمية غير منطقية: كلاسيك سماش × -3/);
+  assert.match(text, /منطقة مش في قايمة التوصيل: منطقة وهمية/);
+});
+
+test('server price list matches the menu, zones and coupons on every order page', async () => {
+  const harness = await createHarness();
+  const server = harness.context;
+  const pages = ['order.html', 'app.html', 'order-preview.html'];
+
+  for (const page of pages) {
+    const html = await readFile(new URL(`../${page}`, import.meta.url), 'utf8');
+    const grab = (pattern) => {
+      const match = html.match(pattern);
+      assert.ok(match, `${page}: ${pattern}`);
+      return match[0];
+    };
+    const site = vm.createContext({});
+    vm.runInContext([
+      grab(/var SANDWICH_UPGRADES = [^\n]+/),
+      grab(/var PREMIUM_UPGRADES {2}= [^\n]+/),
+      grab(/var MENU = \[[\s\S]*?\n\];/),
+      grab(/var ZONES=\[[\s\S]*?\n\];/),
+      grab(/var COUPONS = [^\n]+/),
+      'this.MENU = MENU; this.ZONES = ZONES; this.COUPONS = COUPONS;'
+    ].join('\n'), site);
+
+    const siteItems = {};
+    site.MENU.forEach((category) => category.items.forEach((item) => {
+      const sizes = {};
+      (item.sizes || []).forEach((size) => { sizes[size.name] = size.price; });
+      siteItems[item.name] = { price: item.price, sizes };
+    }));
+    const serverItems = {};
+    Object.keys(server.MENU_PRICES).forEach((name) => {
+      const entry = server.MENU_PRICES[name];
+      serverItems[name] = { price: entry.price, sizes: Object.assign({}, entry.sizes || {}) };
+    });
+    assert.deepEqual(serverItems, siteItems, `${page}: MENU vs MENU_PRICES`);
+
+    const siteZones = {};
+    site.ZONES.forEach((zone) => { siteZones[zone[0]] = zone[1]; });
+    assert.deepEqual(Object.assign({}, server.ZONE_FEES), siteZones, `${page}: ZONES vs ZONE_FEES`);
+    assert.deepEqual(Object.assign({}, server.COUPON_RATES), Object.assign({}, site.COUPONS), `${page}: COUPONS vs COUPON_RATES`);
+  }
+});

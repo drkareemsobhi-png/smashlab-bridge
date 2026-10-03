@@ -49,6 +49,180 @@ var TELEGRAM_STALE_MINUTES = 5;
 var OPEN_MINUTE = 14 * 60 + 30;
 var CLOSE_MINUTE = 23 * 60 + 30;
 
+// ---- التحقق من الأسعار على السيرفر ----
+// نسخة من var MENU و var ZONES و var COUPONS اللي في صفحات الطلب (order.html · app.html · order-preview.html).
+// أي تغيير في سعر أو صنف أو منطقة أو كود خصم لازم يتعمل هنا كمان — اختبار
+// tests/backend-reliability.test.mjs بيوقع لو الموقع والسيرفر اختلفوا.
+// السيرفر عمره ما بيرفض أوردر بسبب السعر: بيحسب الأرقام الصح من هنا، ولو اختلفت عن اللي جه
+// من الموقع بيكتب تنبيه في رسالة التيليجرام عشان الموظف يراجع قبل القبول.
+var SIZE_SANDWICH = { 'دابل': 140, 'تريبل': 190 };
+var SIZE_PREMIUM = { 'دابل': 180, 'تريبل': 230 };
+
+var MENU_PRICES = {
+  'كلاسيك سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'باربكيو سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'مشروم سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'بيف بيكون سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'سويت شيلي سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'ترافل مشروم سماش': { price: 130, sizes: SIZE_PREMIUM },
+  'سيراتشا مايو سماش': { price: 130, sizes: SIZE_PREMIUM },
+  'فيلي تشيز ستيك': { price: 150 },
+  'كلاسيك تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'باربكيو تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'رانش تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'سويت شيلي تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'تركي تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'ترافل مشروم تشيكن': { price: 130, sizes: SIZE_PREMIUM },
+  'سيراتشا مايو تشيكن': { price: 130, sizes: SIZE_PREMIUM },
+  'ريزو': { price: 90 },
+  'بطاطس محمرة': { price: 40 },
+  'بطاطس بالجبنة': { price: 55 },
+  'استريبس الدجاج': { price: 70 },
+  'إضافة صوص': { price: 20 },
+  'نوتيلا كرانش': { price: 150 },
+  'مياه': { price: 10 },
+  'مشروب غازي': { price: 20 }
+};
+
+var ZONE_FEES = {
+  'دار الاشارة': 40, 'دار المدفعية': 40, 'سيتي ستارز': 40, 'عمارات السعودية مدينة نصر': 40,
+  'عمارات رامو': 40, 'عمارات الفرسان': 40, 'نادي الفروسية': 40, 'السبع عمارات': 40,
+  'تيفولي دووم': 40, 'احمد فخري': 40, 'مكرم عبيد': 40, 'عباس العقاد': 40,
+  'الميرغني': 50, 'عمر ابن الخطاب': 50, 'مستشفي الطيران': 50, 'ميدان تريومف': 50,
+  'سانت فاتيما': 50, 'عمار بن ياسر': 50, 'ميدان الحجاز': 50, 'ميدان سفير': 50,
+  'ميدان المحكمة': 50, 'ميدان صلاح الدين': 50, 'ميدان الاسماعيلية': 50, 'الطيران': 50,
+  'حسن المأمون': 50, 'حسن الشريف': 50, 'مصطفي النحاس': 50, 'سمير عبدالرؤف': 50,
+  'الحديقة الدولية': 50, 'الحي السابع': 50, 'حي السفارات': 50, 'الحي الثامن': 50,
+  'التبة': 50, 'احمد الزمر': 50,
+  'الكوربة': 60, 'ميدان روكسي': 60, 'الخليفة المأمون': 60, 'عمارات العبور': 60,
+  'عبد الحميد بدوي': 60, 'الشيراتون': 60, 'الحي العاشر': 60, 'حي الواحة': 60,
+  'زهراء مدينة نصر': 60,
+  'منشية البكري': 65,
+  'حدائق القبة': 70, 'النزهة الجديدة': 70,
+  'جاردينيا': 75, 'تاج سلطان': 75, 'العباسية': 75,
+  'حلمية الزيتون': 80, 'جسر السويس': 80,
+  'المطرية': 90,
+  'التجمع الاول': 130, 'التجمع الخامس': 130, 'التجمع الثالث': 130, 'الرحاب': 130
+};
+
+var COUPON_RATES = { 'BEKO10': 0.10 };
+var MAX_ITEM_QTY = 50;
+
+function has_(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+// سعر الوحدة من المنيو: السعر الأساسي، ولو الاختيارات فيها حجم (دابل/تريبل) سعر الحجم.
+function menuUnitPrice_(name, opt) {
+  if (!has_(MENU_PRICES, name)) return null;
+  var entry = MENU_PRICES[name];
+  var price = entry.price;
+  if (entry.sizes) {
+    text_(opt).split(' · ').forEach(function(part) {
+      if (has_(entry.sizes, part)) price = entry.sizes[part];
+    });
+  }
+  return price;
+}
+
+// الكود بيوصل في أول سطر من notes: «🎟 كود BEKO10 — خصم 10%: ...»
+function orderCouponCode_(d) {
+  var direct = text_(d.coupon).toUpperCase();
+  if (direct) return direct;
+  var match = /🎟 كود ([A-Za-z0-9]+)/.exec(text_(d.notes));
+  return match ? match[1].toUpperCase() : '';
+}
+
+function verifyPricing_(d, itemsList) {
+  var problems = [];
+  var computable = true;
+  var subtotal = 0;
+
+  var items = itemsList.map(function(it) {
+    var line = { name: text_(it.name), opt: text_(it.opt), qty: number_(it.qty), price: number_(it.price) };
+    if (!(Math.floor(line.qty) === line.qty && line.qty >= 1 && line.qty <= MAX_ITEM_QTY)) {
+      problems.push('كمية غير منطقية: ' + (line.name || '—') + ' × ' + text_(it.qty));
+      computable = false;
+      return line;
+    }
+    var unit = menuUnitPrice_(line.name, line.opt);
+    if (unit === null) {
+      problems.push('صنف مش في قايمة الأسعار: ' + (line.name || '—'));
+      computable = false;
+      return line;
+    }
+    if (unit !== line.price) {
+      problems.push('سعر ' + line.name + ': الموقع ' + line.price + 'ج والمنيو ' + unit + 'ج');
+      line.price = unit;
+    }
+    subtotal += line.qty * unit;
+    return line;
+  });
+
+  var area = text_(d.area);
+  var fee = has_(ZONE_FEES, area) ? ZONE_FEES[area] : null;
+  if (fee === null) {
+    problems.push('منطقة مش في قايمة التوصيل: ' + (area || '—'));
+    computable = false;
+  }
+
+  var code = orderCouponCode_(d);
+  var rate = 0;
+  if (code) {
+    if (has_(COUPON_RATES, code)) {
+      rate = COUPON_RATES[code];
+    } else {
+      problems.push('كود خصم مش معروف: ' + code);
+    }
+  }
+
+  if (!computable) {
+    return {
+      status: 'UNVERIFIED',
+      items: items,
+      subtotal: number_(d.subtotal),
+      delivery: number_(d.delivery),
+      total: number_(d.total),
+      problems: problems
+    };
+  }
+
+  var net = subtotal - Math.round(subtotal * rate);
+  var total = net + fee;
+  if (number_(d.subtotal) !== net) problems.push('الأوردر: الموقع ' + number_(d.subtotal) + 'ج والصحيح ' + net + 'ج');
+  if (number_(d.delivery) !== fee) problems.push('التوصيل: الموقع ' + number_(d.delivery) + 'ج والصحيح ' + fee + 'ج');
+  if (number_(d.total) !== total) problems.push('الإجمالي: الموقع ' + number_(d.total) + 'ج والصحيح ' + total + 'ج');
+
+  return {
+    status: problems.length ? 'CORRECTED' : 'OK',
+    items: items,
+    subtotal: net,
+    delivery: fee,
+    total: total,
+    problems: problems
+  };
+}
+
+function priceWarning_(pricing) {
+  if (pricing.status === 'OK') return '';
+  var head = pricing.status === 'CORRECTED'
+    ? '⚠️ تنبيه أسعار: اللي وصل من الموقع مش مطابق للمنيو — الأرقام اتحسبت من المنيو. اتأكد مع العميل قبل القبول.'
+    : '⚠️ تنبيه: مقدرناش نتحقق من الأسعار — الأرقام زي ما وصلت من الموقع. راجع الأوردر مع العميل قبل القبول.';
+  return head + '\n' + pricing.problems.map(function(p) { return '- ' + p; }).join('\n');
+}
+
+// نسخة من الأوردر بالأرقام المتحقق منها — الأصل اللي جه من الموقع مش بيتعدل.
+function pricedOrder_(d, pricing) {
+  var order = {};
+  Object.keys(d).forEach(function(key) { order[key] = d[key]; });
+  order.items = pricing.items;
+  order.subtotal = pricing.subtotal;
+  order.delivery = pricing.delivery;
+  order.total = pricing.total;
+  order.price_warning = priceWarning_(pricing);
+  return order;
+}
+
 function orderMode_() {
   var mode = (PropertiesService.getScriptProperties().getProperty('ORDER_MODE') || 'AUTO').toUpperCase();
   return mode === 'OPEN' || mode === 'CLOSED' ? mode : 'AUTO';
@@ -113,6 +287,12 @@ function handleOrder_(d) {
     throw new Error('Order payload has no items.');
   }
 
+  var pricing = verifyPricing_(d, itemsList);
+  var order = pricedOrder_(d, pricing);
+  var notesCell = order.price_warning
+    ? order.price_warning + (text_(d.notes) ? '\n' + text_(d.notes) : '')
+    : text_(d.notes);
+
   var now = new Date();
   var items = itemsList.map(function(it) {
     return number_(it.qty) + 'x ' + text_(it.name) + (it.opt ? ' (' + text_(it.opt) + ')' : '');
@@ -145,13 +325,13 @@ function handleOrder_(d) {
         formatDate_(now),
         items,
         qty,
-        number_(d.subtotal),
-        number_(d.delivery),
-        number_(d.total),
+        order.subtotal,
+        order.delivery,
+        order.total,
         text_(d.area),
         text_(d.address),
         text_(d.gps),
-        text_(d.notes),
+        notesCell,
         text_(d.src),
         orderId,
         'جديد',
@@ -172,13 +352,14 @@ function handleOrder_(d) {
     lock.releaseLock();
   }
 
-  var telegram = deliverOrderTelegram_(sh, row, duplicate ? null : d, orderId);
+  var telegram = deliverOrderTelegram_(sh, row, duplicate ? null : order, orderId);
   return json_({
     ok: true,
     duplicate: duplicate,
     order_id: orderId,
     row: row,
-    telegram_status: telegram.status
+    telegram_status: telegram.status,
+    price_check: pricing.status
   });
 }
 
@@ -509,6 +690,10 @@ function ensureHeaders_(sh) {
 
 function buildOrderMessage_(d, orderId) {
   var lines = ['🍔 أوردر جديد — SmashLab', '🧾 رقم الأوردر: ' + orderId, ''];
+  if (d.price_warning) {
+    lines.push(d.price_warning);
+    lines.push('');
+  }
   var name = text_(d.customer_name).replace(/\s+/g, ' ').trim();
   var phone = text_(d.phone || d.customer_phone);
   if (name) lines.push('👤 الاسم: ' + name);
