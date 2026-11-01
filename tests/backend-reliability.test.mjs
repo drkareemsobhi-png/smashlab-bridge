@@ -434,6 +434,7 @@ test('server price list matches the menu, zones and coupons on every order page'
     const site = vm.createContext({});
     vm.runInContext([
       grab(/var SANDWICH_UPGRADES = [^\n]+/),
+      grab(/var SANDWICH_PLUS_UPGRADES = [^\n]+/),
       grab(/var PREMIUM_UPGRADES {2}= [^\n]+/),
       grab(/var MENU = \[[\s\S]*?\n\];/),
       grab(/var ZONES=\[[\s\S]*?\n\];/),

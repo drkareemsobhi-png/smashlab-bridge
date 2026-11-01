@@ -56,13 +56,14 @@ var CLOSE_MINUTE = 23 * 60 + 30;
 // السيرفر عمره ما بيرفض أوردر بسبب السعر: بيحسب الأرقام الصح من هنا، ولو اختلفت عن اللي جه
 // من الموقع بيكتب تنبيه في رسالة التيليجرام عشان الموظف يراجع قبل القبول.
 var SIZE_SANDWICH = { 'دابل': 140, 'تريبل': 190 };
+var SIZE_SANDWICH_PLUS = { 'دابل': 150, 'تريبل': 200 };
 var SIZE_PREMIUM = { 'دابل': 180, 'تريبل': 230 };
 
 var MENU_PRICES = {
   'كلاسيك سماش': { price: 90, sizes: SIZE_SANDWICH },
   'باربكيو سماش': { price: 90, sizes: SIZE_SANDWICH },
-  'مشروم سماش': { price: 90, sizes: SIZE_SANDWICH },
-  'بيف بيكون سماش': { price: 90, sizes: SIZE_SANDWICH },
+  'مشروم سماش': { price: 100, sizes: SIZE_SANDWICH_PLUS },
+  'بيف بيكون سماش': { price: 100, sizes: SIZE_SANDWICH_PLUS },
   'سويت شيلي سماش': { price: 90, sizes: SIZE_SANDWICH },
   'ترافل مشروم سماش': { price: 130, sizes: SIZE_PREMIUM },
   'سيراتشا مايو سماش': { price: 130, sizes: SIZE_PREMIUM },
@@ -71,7 +72,7 @@ var MENU_PRICES = {
   'باربكيو تشيكن': { price: 90, sizes: SIZE_SANDWICH },
   'رانش تشيكن': { price: 90, sizes: SIZE_SANDWICH },
   'سويت شيلي تشيكن': { price: 90, sizes: SIZE_SANDWICH },
-  'تركي تشيكن': { price: 90, sizes: SIZE_SANDWICH },
+  'تركي تشيكن': { price: 100, sizes: SIZE_SANDWICH_PLUS },
   'ترافل مشروم تشيكن': { price: 130, sizes: SIZE_PREMIUM },
   'سيراتشا مايو تشيكن': { price: 130, sizes: SIZE_PREMIUM },
   'ريزو': { price: 90 },
