@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
+import { createHash } from 'node:crypto';
 
 const ROOT = new URL('../', import.meta.url);
 const ORDER_PAGES = ['order.html', 'order-preview.html', 'app.html'];
@@ -116,4 +117,80 @@ test('browser client reports success only after a backend receipt', async () => 
   const receipt = JSON.parse(storage.get('smashlab_last_order_v1'));
   assert.equal(receipt.order_id, 'SL-TEST-001');
   assert.equal(typeof receipt.at, 'number');
+});
+
+// بصمة المنيو: لو اتغير سعر/صنف/اختيار/منطقة/كود في الصفحات من غير ما MENU_VERSION يتزوّد،
+// الصفحات اللي مفتوحة عند العملاء مش هتعرف إنها قديمة. الاختبار ده بيوقع لحد ما تزوّد النسخة.
+// لما يوقع: غيّر MENU_VERSION في الصفحات التلاتة + menu-version.txt لنسخة جديدة، وحدّث الرقمين هنا.
+const MENU_FINGERPRINT = { version: '2026-11-02', sha256: 'd100487e0bae3840c9e481a1a165acf0d57aae985e0c036046dbb650af8bc3ae' };
+
+async function menuFingerprint(filename) {
+  const html = await readFile(new URL(filename, ROOT), 'utf8');
+  const grab = (pattern) => {
+    const match = html.match(pattern);
+    assert.ok(match, `${filename}: ${pattern}`);
+    return match[0];
+  };
+  const context = vm.createContext({});
+  vm.runInContext([
+    grab(/var MENU_VERSION = [^\n]+/),
+    grab(/var SANDWICH_UPGRADES = [^\n]+/),
+    grab(/var SANDWICH_PLUS_UPGRADES = [^\n]+/),
+    grab(/var PREMIUM_UPGRADES {2}= [^\n]+/),
+    grab(/var MENU = \[[\s\S]*?\n\];/),
+    grab(/var ZONES=\[[\s\S]*?\n\];/),
+    grab(/var COUPONS = [^\n]+/),
+    'this.out = { version: MENU_VERSION, data: JSON.stringify({ MENU: MENU.map(function (c) { return c.items.map(function (it) { return [it.id, it.name, it.price, it.sizes || null, it.opts || null, it.opts2 || null]; }); }), ZONES: ZONES, COUPONS: COUPONS }) };'
+  ].join('\n'), context);
+  return { version: context.out.version, sha256: createHash('sha256').update(context.out.data).digest('hex') };
+}
+
+test('menu version matches the live version file and is bumped with every menu change', async () => {
+  const fileVersion = (await readFile(new URL('menu-version.txt', ROOT), 'utf8')).trim();
+  for (const filename of ORDER_PAGES) {
+    const html = await readFile(new URL(filename, ROOT), 'utf8');
+    const fp = await menuFingerprint(filename);
+    assert.equal(fp.version, fileVersion, `${filename}: MENU_VERSION لازم تطابق menu-version.txt`);
+    assert.deepEqual(fp, MENU_FINGERPRINT, `${filename}: المنيو اتغير — زوّد MENU_VERSION + menu-version.txt وحدّث MENU_FINGERPRINT`);
+    // الفحص لازم يحصل قبل ما الأوردر يتبعت، والسلة ترجع بعد الريفريش.
+    const send = html.indexOf('SmashLabOrders.submitWithConfirmation(');
+    const check = html.indexOf('if(!menuChecked){ checkMenuThenSend(this); return; }');
+    assert.ok(check > 0 && check < send, filename);
+    assert.match(html, /\nrestoreDraft\(\);/, filename);
+  }
+});
+
+test('stale-menu check: detects a new version, never blocks on network failure, and keeps the cart', async () => {
+  const source = await readFile(new URL('order-client.js', ROOT), 'utf8');
+  const session = new Map();
+  let reply = () => Promise.resolve({ ok: true, text: () => Promise.resolve('2026-11-02\n') });
+  const windowObject = {
+    fetch: (...args) => reply(...args),
+    sessionStorage: {
+      setItem: (k, v) => session.set(k, v),
+      getItem: (k) => session.get(k) || null,
+      removeItem: (k) => session.delete(k)
+    },
+    localStorage: { setItem() {}, getItem: () => null, removeItem() {} },
+    setTimeout, clearTimeout
+  };
+  const context = vm.createContext({
+    window: windowObject,
+    document: { getElementById: () => null },
+    Date, Math, JSON, Promise, encodeURIComponent, setTimeout, clearTimeout
+  });
+  vm.runInContext(source, context, { filename: 'order-client.js' });
+  const api = windowObject.SmashLabOrders;
+
+  assert.equal(await api.isMenuStale('2026-11-02'), false);
+  assert.equal(await api.isMenuStale('2026-11-01'), true);
+  reply = () => Promise.reject(new Error('offline'));
+  assert.equal(await api.isMenuStale('2026-11-01'), false);
+  reply = () => Promise.resolve({ ok: false, text: () => Promise.resolve('') });
+  assert.equal(await api.isMenuStale('2026-11-01'), false);
+
+  const draft = { lines: [['bacon|||دابل', 2]], fields: { cname: 'Amr' }, coupon: '', gps: null };
+  assert.equal(api.saveDraft(draft), true);
+  assert.deepEqual(JSON.parse(JSON.stringify(api.takeDraft())), draft);
+  assert.equal(api.takeDraft(), null, 'المسودة بتتقرا مرة واحدة بس');
 });

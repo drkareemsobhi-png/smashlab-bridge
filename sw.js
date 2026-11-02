@@ -1,5 +1,5 @@
 /* SmashLab app service worker — يخدم ملفات التطبيق بس، باقي صفحات الموقع (لاندينج الإعلانات) مش بيلمسها */
-var CACHE = 'smashlab-app-v17';
+var CACHE = 'smashlab-app-v18';
 var ASSETS = [
   'app.html',
   'i18n.js',

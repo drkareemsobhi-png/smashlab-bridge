@@ -7,6 +7,11 @@
   var RECEIPT_KEY = 'smashlab_last_order_v1';
   var RECEIPT_TTL_MS = 45 * 60 * 1000;
   var CHECK_DELAYS = [400, 900, 1600, 2600, 4000];
+  // نسخة المنيو: الصفحة اللي العميل سايبها مفتوحة من قبل تغيير الأسعار بتفضل بالأسعار القديمة.
+  // قبل التأكيد بنقارن نسخة الصفحة بـ menu-version.txt اللايف، ولو قديمة بنحفظ السلة ونعمل ريفريش.
+  var DRAFT_KEY = 'smashlab_order_draft_v1';
+  var DRAFT_TTL_MS = 30 * 60 * 1000;
+  var MENU_CHECK_TIMEOUT_MS = 3000;
 
   // نصوص الواجهة حسب اللغة (i18n.js) — من غيره بيفضل عربي
   function isEn() { return !!(global.SLi18n && global.SLi18n.isEn()); }
@@ -268,7 +273,47 @@
     return payload.client_order_id;
   }
 
+  // true = الصفحة قديمة. أي فشل في الشبكة أو تأخير = false عشان العميل ميتعطلش
+  // (السيرفر برضه بيراجع الأسعار على المنيو وبينبّه المطبخ لو فيه فرق).
+  function isMenuStale(version) {
+    if (!version || typeof global.fetch !== 'function') return Promise.resolve(false);
+    var timeout = new Promise(function (resolve) {
+      global.setTimeout(function () { resolve(false); }, MENU_CHECK_TIMEOUT_MS);
+    });
+    var check = global.fetch('menu-version.txt?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) { return res && res.ok ? res.text() : ''; })
+      .then(function (text) {
+        text = String(text || '').trim();
+        return !!text && text !== version;
+      })
+      .catch(function () { return false; });
+    return Promise.race([check, timeout]);
+  }
+
+  function saveDraft(draft) {
+    try {
+      global.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), draft: draft }));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function takeDraft() {
+    try {
+      var saved = JSON.parse(global.sessionStorage.getItem(DRAFT_KEY) || 'null');
+      global.sessionStorage.removeItem(DRAFT_KEY);
+      if (!saved || !saved.draft || Date.now() - Number(saved.at || 0) > DRAFT_TTL_MS) return null;
+      return saved.draft;
+    } catch (err) {
+      return null;
+    }
+  }
+
   global.SmashLabOrders = {
+    isMenuStale: isMenuStale,
+    saveDraft: saveDraft,
+    takeDraft: takeDraft,
     createClientOrderId: createClientOrderId,
     sendPayload: sendPayload,
     checkReceiptOnce: checkReceiptOnce,

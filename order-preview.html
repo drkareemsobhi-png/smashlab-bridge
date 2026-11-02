@@ -222,6 +222,7 @@
 <script src="i18n.js"></script>
 <script src="order-client.js"></script>
 <script>
+var MENU_VERSION = '2026-11-02'; // لازم تطابق menu-version.txt — زوّدها مع أي تغيير في المنيو/المناطق/الأكواد
 var SANDWICH_UPGRADES = [{name:'دابل',price:140},{name:'تريبل',price:190}];
 var SANDWICH_PLUS_UPGRADES = [{name:'دابل',price:150},{name:'تريبل',price:200}];
 var PREMIUM_UPGRADES  = [{name:'دابل',price:180},{name:'تريبل',price:230}];
@@ -576,6 +577,7 @@ document.getElementById('sendOrder').addEventListener('click', function(){
   if(!area){ areaEl.classList.add('err'); showErr(SLi18n.L('اختار منطقة التوصيل الأول — التوصيل متاح بس في المناطق اللي في القايمة.','Please choose your delivery area — we only deliver to the areas in the list.')); areaEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(!validPhone(phone)){ phoneEl.classList.add('err'); showErr(SLi18n.L('اكتب رقم موبايل صحيح (11 رقم ويبدأ بـ01).','Please enter a valid mobile number (11 digits starting with 01).')); phoneEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(addr.length<8){ addrEl.classList.add('err'); showErr(SLi18n.L('اكتب عنوانك بالتفصيل (الشارع - العمارة - الدور - الشقة) عشان الدليفري يوصلك.','Please enter your full address (street - building - floor - apartment) so the rider can find you.')); addrEl.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!menuChecked){ checkMenuThenSend(this); return; }
   var fee=FEES[area];
   var disc=discountOf(x.t), net=x.t-disc;
   var notes=document.getElementById('notes').value.trim();
@@ -608,6 +610,66 @@ document.getElementById('sendOrder').addEventListener('click', function(){
 
 window.onLangChange=function(){ buildMenu(); renderBar(); relabelZones(); if(!orderSent){ renderSheet(); hoursUI(); hideErr(); } };
 buildMenu(); renderBar(); hoursUI(); setInterval(hoursUI, 60000);
+/* ---- المنيو اتحدّث والصفحة مفتوحة عند العميل ----
+   قبل التأكيد (ولما العميل يرجع للصفحة بعد غياب) بنقارن MENU_VERSION بـ menu-version.txt اللايف.
+   لو الصفحة قديمة: بنحفظ السلة وبيانات العميل، نعمل ريفريش، ونرجّع السلة بأسعار المنيو الجديد
+   عشان يشوف الإجمالي الصح قبل ما يأكد. أي غلط في الشبكة = نكمّل عادي (السيرفر بيراجع الأسعار برضه). */
+var menuChecked=false;
+function draftNow(){
+  var v=function(id){ var el=document.getElementById(id); return el?el.value:''; };
+  return {
+    lines:Object.keys(cart).map(function(k){ return [k,cart[k].qty]; }),
+    fields:{cname:v('cname'), phone:v('phone'), addr:v('addr'), area:v('area'), notes:v('notes')},
+    coupon:coupon?coupon.code:'',
+    gps:(gps&&gps.lat)?gps:null
+  };
+}
+function reloadIfStale(onFresh){
+  SmashLabOrders.isMenuStale(MENU_VERSION).then(function(stale){
+    if(stale && !orderSent && (!totals().n || SmashLabOrders.saveDraft(draftNow()))){ location.reload(); return; }
+    if(onFresh) onFresh();
+  });
+}
+function checkMenuThenSend(btn){
+  btn.disabled=true; btn.textContent=SLi18n.L('بنتأكد من الأسعار…','Checking prices…');
+  reloadIfStale(function(){ menuChecked=true; hoursUI(); btn.click(); });
+}
+function restoreDraft(){
+  var d=SmashLabOrders.takeDraft(); if(!d) return;
+  var dropped=0;
+  (d.lines||[]).forEach(function(line){
+    var p=String(line[0]).split('|'), it=items[p[0]], q=Math.floor(Number(line[1]));
+    var ok=it && q>0 && q<=50 &&
+      (!p[1] || (it.opts||[]).indexOf(p[1])>=0) &&
+      (!p[2] || (it.opts2||[]).indexOf(p[2])>=0) &&
+      (!p[3] || p[3]==='سنجل' || (it.sizes||[]).some(function(s){ return s.name===p[3]; }));
+    if(!ok){ dropped++; return; }
+    if(p[1]) sel[it.id]=p[1];
+    if(p[2]) sel2[it.id]=p[2];
+    if(p[3]) sizeSel[it.id]=p[3];
+    var k=key(it.id);
+    cart[k]={name:it.name, opt:selectedOpt(it.id), price:selectedPrice(it.id), qty:q};
+  });
+  var f=d.fields||{};
+  ['cname','phone','addr','notes'].forEach(function(id){ var el=document.getElementById(id); if(el && f[id]) el.value=f[id]; });
+  if(f.area && FEES.hasOwnProperty(f.area)) document.getElementById('area').value=f.area;
+  if(d.gps && d.gps.lat){ gps=d.gps; gpsStat.className='gpsstat ok'; gpsStat.textContent=SLi18n.L('✅ تم تحديد موقعك — هيتبعت للدليفري مع الأوردر','✅ Location set — it will be sent to the rider with your order'); }
+  if(d.coupon){ document.getElementById('cpnIn').value=d.coupon; applyCoupon(); }
+  menuChecked=true;
+  buildMenu(); renderBar();
+  if(!totals().n) return;
+  openSheet();
+  showErr(SLi18n.L('⚠️ الأسعار اتحدّثت وانت فاتح الصفحة — السلة اتحسبت بالأسعار الجديدة'+(dropped?' وصنف مبقاش متاح اتشال':'')+'. راجع الإجمالي وبعدين أكد الأوردر.',
+                   '⚠️ Our prices were updated while this page was open — your cart now uses the new prices'+(dropped?' and an unavailable item was removed':'')+'. Please check the total, then confirm.'));
+}
+var hiddenAt=0;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ hiddenAt=Date.now(); return; }
+  if(hiddenAt && Date.now()-hiddenAt>5*60*1000) reloadIfStale();
+  hiddenAt=0;
+});
+window.addEventListener('pageshow', function(e){ if(e.persisted) reloadIfStale(); });
+restoreDraft();
 </script>
 </body>
 </html>
