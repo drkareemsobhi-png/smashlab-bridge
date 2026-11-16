@@ -308,7 +308,16 @@ var MENU = [
 
 var PHONE = '201030080097';
 var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
-var src = new URLSearchParams(location.search).get('src') || 'app';
+var src = (function(def){ // المصدر: لينك صريح، أو علامة ضغطة إعلان (gclid/fbclid/ttclid)، أو آخر ضغطة إعلان خلال 7 أيام
+  var K='sl_ad_click', q=new URLSearchParams(location.search), s=q.get('src')||'', now=Date.now(), seen=null;
+  var click=(q.get('gclid')||q.get('gbraid')||q.get('wbraid'))?'google_ads':q.get('fbclid')?'fb_click':q.get('ttclid')?'tt_click':'';
+  var hit=/^(google_ads|fb_ads|fb_pr_|tt_ads)/.test(s)?s:(!s&&click?click:'');
+  try{ seen=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){}
+  if(hit){ try{ localStorage.setItem(K,JSON.stringify({s:hit,t:now})); }catch(e){} return hit; }
+  // رجع من غير لينك إعلان: نرجّعه لآخر إعلان ضغط عليه، و«_r» لو بعد أكتر من نص ساعة
+  if(seen&&seen.s&&now-seen.t<7*864e5&&(!s||s==='site'||s==='menu'||s==='app')) return seen.s+(now-seen.t>18e5?'_r':'');
+  return s||def;
+})('app');
 var GADS_SEND_TO = 'AW-18575251572/COiBCOPyv7kdEPSwr5lF'; // كود حدث «order_confirm» من جوجل (AW-…/label) — فاضي = مفيش إرسال
 var cart = {};            // key = id|opt|opt2|size  ->  {name, opt, price, qty}
 var sel  = {};            // selected option per item id
