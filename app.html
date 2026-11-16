@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- Google tag (Google Ads) -->
+<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WNXV6HBX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
@@ -302,6 +309,7 @@ var MENU = [
 var PHONE = '201030080097';
 var WEBHOOK = 'https://script.google.com/macros/s/AKfycbw-AO-CWhoeev6PS16QKic0XzDCFYiMaCJgxavn9IbF2eVdea7cN6gX5GUXgf_TD2LT/exec';
 var src = new URLSearchParams(location.search).get('src') || 'app';
+var GADS_SEND_TO = ''; // كود حدث «order_confirm» من جوجل (AW-…/label) — فاضي = مفيش إرسال
 var cart = {};            // key = id|opt|opt2|size  ->  {name, opt, price, qty}
 var sel  = {};            // selected option per item id
 var sel2 = {};            // selected second option per item id
@@ -631,6 +639,8 @@ document.getElementById('sendOrder').addEventListener('click', function(){
     gps:(gps&&gps.lat)?('https://maps.google.com/?q='+gps.lat.toFixed(6)+','+gps.lng.toFixed(6)):'',
     notes:notes, src:src
   };
+  // Google Ads: قيمة الأوردر ورقمه بس — ممنوع إرسال اسم أو موبايل أو عنوان
+  try{ if(GADS_SEND_TO && typeof gtag==='function') gtag('event','conversion',{send_to:GADS_SEND_TO, value:net+fee, currency:'EGP', transaction_id:payload.client_order_id}); }catch(err){}
   orderSent=true;
   SmashLabOrders.submitWithConfirmation({
     webhook:WEBHOOK,
